@@ -4,6 +4,10 @@
 
 # Emacs backup files
 *.*~
+\#*\#
+
+# Undo Tree files
+*.~undo-tree~
 
 # Vim info about your recent edits and other state
 .vim/
@@ -11,6 +15,11 @@
 
 # Neovim plugins
 .config/nvim/plugin/
+
+# Emacs config
+.emacs.d/auto-save-list/
+.emacs.d/config.el
+.emacs.d/elpa/
 
 # ===================================================================================
 # Shells

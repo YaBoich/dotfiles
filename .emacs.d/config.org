@@ -1,0 +1,763 @@
+#+title: Emacs Configuration
+
+* Core
+  
+** GC Tinkering & Faster Startup
+
+Turn off GC during startup and whenever the minibuffer is open.
+We also use a different value than the default GC threshold.#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(defun turn-off-gc ()
+  "Turn off garbage collection."
+  (setq gc-cons-threshold most-positive-fixnum)
+  (setq gc-cons-percentage 0.6))
+
+(defun turn-on-gc ()
+  "Turn on Garbage Collection."
+  (setq gc-cons-threshold 30 * 1000 * 1000) 
+  (setq gc-cons-percentage 0.2))
+
+(turn-off-gc)
+(add-hook 'after-init-hook #'turn-on-gc)
+
+(add-hook 'minibuffer-setup-hook #'turn-off-gc)
+(add-hook 'minibuffer-exit-hook #'turn-on-gc)
+
+(setq garbage-collection-messages t) ;; change to nil if you're annoyed.
+
+(add-hook 'emacs-startup-hook
+          (lambda () (message "Emacs ready in %s with %d garbage collections."
+                              (format (emacs-init-time)) gcs-done)))
+
+#+END_SRC
+
+** File Encoding (UTF-8)
+
+#+begin_src emacs-lisp
+  ;; UTF-8 as default encoding
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
+  (set-keyboard-coding-system 'utf-8-unix)
+
+  ;; For Windows, especially. Mainly for python output
+  (set-terminal-coding-system 'utf-8-unix)
+#+end_src
+
+** Installing Packages
+   
+#+begin_src emacs-lisp
+  (require 'package)
+
+  ;; Add to available repositories
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                           ("org" . "https://orgmode.org/elpa/")
+                           ("elpa" . "https://elpa.gnu.org/packages/")))
+
+  ;; Initializes the package infrastructure
+  (package-initialize)
+
+  (unless package-archive-contents
+    (package-refresh-contents))
+
+  ;; Init for non-linux platforms
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+
+  ;; If there are no archieved package contents, refresh them
+  (when (not package-archive-contents)
+    (package-refresh-contents))
+
+  (require 'use-package)
+
+  ;; Will try download, this is nice if loading config from scratch
+  (setq use-package-always-ensure t)
+#+end_src
+
+** Org Mode
+
+*** Setup Hook
+
+#+begin_src emacs-lisp
+(defun boich/org-mode-setup()
+  "Setup hook run on org-mode buffers"
+  (org-indent-mode 1)
+  (variable-pitch-mode -1)
+  (auto-fill-mode 0)
+  (visual-line-mode 1)
+  (setq evil-auto-indent nil))
+#+end_src
+
+*** Install & Setup
+
+Emacs comes with org mode, but we include org in our package-archive
+to get latest version instead. Can look at ‘org-version’ variable to
+see what we have.
+
+#+begin_src emacs-lisp
+(use-package org
+  :hook (org-mode . boich/org-mode-setup)
+  :config
+  (setq org-ellipsis "...")
+  (setq org-hide-emphasis.markers t) ; Bold text won't show markers around it.
+  (setq org-agenda-files '("~/org")) ; TODO should make this path a variable
+  (setq org-log-done t)
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)    ; When I complete a task, log the time. Can do 'note, too
+  (setq org-log-into-drawer t) ; Fold logs into drawer under tasks
+  (setq org-return-follows-link t)   ; Follow links with ENTER
+
+  ;; For below keyword definitions
+  ;; The | means state on the left are incomplete (active), on the
+  ;; right are complete. The parens letter are a hotkey when in state
+  ;; switching selector.  Second one is example scrum. Also gonna
+  ;; figure out how having multiple sequences works.
+
+  ;; NOTE: Regarding task to make org todo add created date.
+  ;; The ! here makes org track state changes.
+  ;; Here https://stackoverflow.com/questions/12262220/add-created-date-property-to-todos-in-org-mode
+  ;;  also mentions that I could use something called org-expiry.
+  ;;  But easiest solution first! :D
+
+  (setq org-todo-keywords
+        '((sequence "TODO(t!)" "NEXT(n)" "In Progress(i!)" "|" "DONE(d!)")
+          (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
+                    "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANCELLED(k@)")
+        )
+  )
+  ;; custom-agenda-views
+  ;; TODO David has awesome ones! Check here in the video:
+  ;; https://youtu.be/PNE-mgkZ6HM?t=1604
+  ;; Configure custom agenda views
+  ;; https://github.com/daviwil/emacs-from-scratch/blob/c55d0f5e309f7ed8ffa3c00bc35c75937a5184e4/init.el
+  (setq org-agenda-custom-commands
+   '(("d" "Dashboard"
+     ((agenda "" ((org-deadline-warning-days 7)))
+      (todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))
+      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+    ("n" "Next Tasks"
+     ((todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))))
+
+    ("W" "Work Tasks" tags-todo "+work-email")
+
+    ;; Low-effort next actions
+    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+     ((org-agenda-overriding-header "Low Effort Tasks")
+      (org-agenda-max-todos 20)
+      (org-agenda-files org-agenda-files)))
+
+    ("w" "Workflow Status"
+     ((todo "WAIT"
+            ((org-agenda-overriding-header "Waiting on External")
+             (org-agenda-files org-agenda-files)))
+      (todo "REVIEW"
+            ((org-agenda-overriding-header "In Review")
+             (org-agenda-files org-agenda-files)))
+      (todo "PLAN"
+            ((org-agenda-overriding-header "In Planning")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "BACKLOG"
+            ((org-agenda-overriding-header "Project Backlog")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "READY"
+            ((org-agenda-overriding-header "Ready for Work")
+             (org-agenda-files org-agenda-files)))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "COMPLETED"
+            ((org-agenda-overriding-header "Completed Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "CANC"
+            ((org-agenda-overriding-header "Cancelled Projects")
+             (org-agenda-files org-agenda-files)))))))
+  ;; Remember check-parens exists for debugging matching parens
+  ;; issues.
+
+  (setq org-tag-alist
+        '((:startgroup)
+          ;; Put mututally exclusive tags here
+          (:endgroup)
+          ("@errand" . ?E)
+          ("@home" . ?H)
+          ("@work" . ?W)
+          ("agenda" . ?a)
+          ("planning" . ?p)
+          ("publish" . ?P)
+          ("batch" . ?b)
+          ("note" . ?n)
+          ("idea" . ?i)))
+
+  (setq org-refile-targets
+        '(("Archive.org" :maxlevel . 1) ;; TODO try change this to 2
+          ("Tasks.org" :maxlevel . 1)))
+
+  ;; Save Org Buffers after refiling!
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+  ;; This is a core emacs feature. Add a function to be called after
+  ;; another function completes.
+
+  ;;
+  ;; NOTE!!!! BROKEN RIGHT NOW!!!
+  ;;
+
+  ;; Capture templates time. Really useful org feature. Can be
+  ;; working on 1 thing and a thought pops up and you need to jot it
+  ;; down quick. It's a quick-edit sequence bound to a keybind.
+
+  ;; These look amazing, they work from anywhere.  The task one adds
+  ;; where you where when you created it - then can 'C-c C-o' to open
+  ;; directly into that buffer.
+
+  ;; Journals work with datetree. When you capture a journal entry
+  ;; it'll go into a journal file and it'll be automatically placed
+  ;; under year/month/date. That's fkn amazing.
+
+  ;; Email checking notes as part of workflow.
+
+  ;; Can add entries to a table.
+
+  ;; TODO This looks awesome but I need to fix all the directories
+  ;; here. Can invoke with org-capture.
+  (setq org-capture-templates
+        `(("t" "Tasks / Projects")
+          ("tt" "Task" entry (file+olp "~/Capture.org" "Inbox") ; needs to be an "Inbox" top level heading in the file
+           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+      ("j" "Journal Entries")
+      ("jj" "Journal" entry
+           (file+olp+datetree "~/journal.org")
+           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+           :clock-in :clock-resume
+           :empty-lines 1)
+      ("jm" "Meeting" entry
+           (file+olp+datetree "~/Journal.org")
+           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+           :clock-in :clock-resume
+           :empty-lines 1)
+
+      ("w" "Workflows")
+      ("we" "Checking Email" entry (file+olp+datetree "~/Journal.org")
+           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+      ("m" "Metrics Capture")
+      ("mw" "Weight" table-line (file+headline "~/Metrics.org" "Weight") ;; Metrics buffer wouldn't be open after capturing this wait.
+       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))) 
+      ; This kill buffer closes after adding.
+
+  ;; C-u C-u org-capture goes to last note stored. (This doesn't work
+  ;; for me since evil). C-u is the universal key, not for me tho.
+
+  (define-key global-map (kbd "C-c j")
+    (lambda () (interactive) (org-capture nil "j")))
+  ;; Look how this works, awesome. Just a hotkey for a command plus
+  ;; further keys.
+  ;; A binding to just org-capture could be nice since it has a good
+  ;; menu already.
+
+  ;; Habit tracking (org-habit)
+  (require 'org-habit)
+  (add-to-list 'org-modules 'org-habit)
+  (setq org-habit-graph-column 60)
+
+)
+
+;; org-ql is a query language for org tasks or something. Could look
+;; into it - sounds dope! Defining org queries for agendas is hard
+;; otherwise.
+
+;; use-package :custom keyword can be much better than :config cause
+;; it allows keyvalues instead of all the setq keywords.
+
+;; BTW the ' in something like '(....) means "treat this as a list,
+;; not a function call"
+#+end_src
+
+*** Bullets
+
+#+begin_src emacs-lisp
+  ;; First few * chars use same color as background color. So they are
+  ;; still there but less noisy.
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode))
+    ;; :custom
+    ;; (org-bullets-bullet-list
+    ;;  '("", "", "", ""))
+    ;; Can have custom thingies. 
+
+  (with-eval-after-load 'org-faces
+    (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1)
+                  (org-level-5 . 1)
+                  (org-level-6 . 1)
+                  (org-level-7 . 1)
+                  (org-level-8 . 1)))
+       (set-face-attribute (car face) nil :font "Fira Code" :weight
+       'regular :height (cdr face))))
+  ;; Can pick a nice variable width font like this one for headings.
+
+  ;; Replace list hyphens with dots, uses a regex
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  ;; got the dot from here https://fsymbols.com/signs/bullet-point/
+#+end_src
+
+*** Visual Fill
+
+#+begin_src emacs-lisp
+(defun boich/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :defer t
+  :hook (org-mode . boich/org-mode-visual-fill))
+#+end_src
+
+*** Misc
+
+Open links with ENTER, in evil mode.
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil
+  (evil-define-key 'normal org-mode-map (kbd "RET") 'org-open-at-point))
+#+end_src
+
+*** Help
+
+| Keybind | Action                        |
+|---------+-------------------------------|
+| C-c C-l | Insert Link                   |
+| C-c C-o | Open at point (Can use enter) |
+
+** Org Babel
+
+Can go into an editor window for a babel block using C-c '
+
+*** Load Languages
+
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+  'org-babel-load-languages
+    '((emacs-lisp . t)
+    (python . t)
+    (shell . t)))
+    
+(setq org-confirm-babel-evaluate nil)
+#+end_src
+
+*** Templates
+
+This lets you just write "<el TAB" and it'll auto create a babel block.
+
+#+begin_src emacs-lisp
+(require 'org-tempo)
+
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+#+end_src
+
+*** Help
+
+| Keybind | Action                              |
+|---------+-------------------------------------|
+| C-c '   | org-edit-source-code within a block |
+| C-x C-s | Save buffer (for above)             |
+| C-x C-c | Close buffer                        |
+
+
+* Interface
+  
+** Basic Settings
+
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t)
+(setq visible-bell t)   ; Rather than the constant pinging noise
+
+(scroll-bar-mode -1)    ; Disable the visible scrollbar
+(tool-bar-mode -1)      ; Disable the toolbar
+(tooltip-mode -1)       ; Disable tooltips
+(set-fringe-mode 30)    ; Gives some breathing room
+;; (menu-bar-mode -1)   ; Disable the menu bar
+
+(setq scroll-margin 10) ; Maintain lines below and above cursor
+(pixel-scroll-mode 0)   
+(setq scroll-step 1)   
+#+end_src
+
+** Theme
+
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :init (load-theme 'doom-gruvbox t))
+#+end_src
+
+** Doom Modeline
+
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15 "set the height")))
+#+end_src
+
+** Font
+
+Can have custom font settings per face type.
+
+#+begin_src emacs-lisp
+(defcustom boich/default-font-size 150
+  "Default font size."
+  :type 'number)
+
+(defun boich/set-font-face (face font size &optional weight)
+  "Utility function to set font face if font exists."
+  (when (find-font (font-spec :name font))
+    (set-face-attribute face nil :font font :height size :weight (or weight 'normal))
+    t))
+
+(unless (boich/set-font-face 'default "Fira Code" boich/default-font-size)
+  (message "Warning: Font 'Fira Code' is not available."))
+
+(unless (boich/set-font-face 'fixed-pitch "Fira Code" boich/default-font-size)
+  (message "Warning: Font 'Fira Code' is not available for fixed-pitch."))
+
+(unless (boich/set-font-face 'variable-pitch "Cantarell" boich/default-font-size 'regular)
+  (message "Warning: Font 'Cantarell' is not available for variable-pitch."))
+#+end_src
+
+** Rainbow Delimiters
+
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+** Icons
+
+#+begin_src emacs-lisp
+(use-package all-the-icons)
+
+(defun boich/all-the-icons-ensure-fonts-installed ()
+  "Ensure that all-the-icons fonts are installed."
+  (unless (find-font (font-spec :name "all-the-icons"))
+    (all-the-icons-install-fonts t)))
+
+(boich/all-the-icons-ensure-fonts-installed)
+#+end_src
+
+** Line Numbers
+
+#+begin_src emacs-lisp
+(global-display-line-numbers-mode)
+(setq display-line-numbers-type 'relative)
+#+end_src
+
+*** Modes to Exclude
+
+#+begin_src emacs-lisp
+(dolist (mode '( ;; org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode -1))))
+#+end_src
+
+
+* Controls, Keybinds, Hotkeys, & Helpers
+** Evil Mode (Vim keybinds)
+   
+*** Base Setup
+    
+Few things happening here:
+
+- Binding ESC and BACKSPACE functionality to C-g and C-h so that you can always keep hands on the home row (Only in INSERT MODE).
+- Use visual line motions even outside of visual-line-mode buffers.
+- Jump to next line visuuuuuually even if it's the truncated line of the same line.
+
+#+begin_src emacs-lisp
+(use-package evil
+  :init
+  (setq evil-want-integration t) ; There's a large list of evil-want-... variables to check out
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  :config
+  (evil-mode 1)
+
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+#+end_src
+
+A few of the many extras we currently have:
+- Hit 'q' to close any help panel mini-buffer that pops up.
+- Allows use of TAB in org mode
+
+*** Evil Collection
+    
+This package makes evil play nicely with most modes
+
+Some benefits:
+- Can hit enter on things in dired to navigate to them.
+
+#+begin_src emacs-lisp
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+#+end_src
+
+*** Undo Functionality
+
+Evil needs you to tell it how to handle undo.
+
+#+begin_src emacs-lisp
+;; (use-package undo-tree)
+
+;; (global-undo-tree-mode)
+;; (evil-set-undo-system 'undo-tree)
+(use-package undo-tree
+    :init
+    (global-undo-tree-mode 1)
+    :config
+    (when (featurep 'evil) 
+      (evil-set-undo-system 'undo-tree)))
+#+end_src
+
+*** Help
+
+| Keybind     | Action                            |
+|-------------+-----------------------------------|
+| C-w H/J/K/L | Move window                       |
+| C-g         | ESC in INSERT mode                |
+| C-h         | Backspace in INSERT mode          |
+| z-a         | Toggle fold that cursor is within |
+|-------------+-----------------------------------|
+
+** Ivy Completion
+
+*** Ivy Core 
+
+https://github.com/abo-abo/swiper
+
+This installs 3 packages:
+
+- Ivy: a generic completion mechanism.
+- Counsel: a collection of Ivy-enhanced versions of common commands.
+- Swiper: an Ivy-enhanced alternative to Isearch
+
+Can now hit M-o in M-x menu for extra options regarding the thing you’re hovering over.
+
+#+begin_src emacs-lisp
+(use-package swiper
+  :ensure t)
+
+(use-package counsel
+  :ensure t)
+
+(use-package ivy
+  ;; :diminish
+    :init (ivy-mode)
+    :bind(("C-s" . swiper)
+          ("M-x" . counsel-M-x)
+          ("C-x b" . counsel-ibuffer)
+          ("C-x C-f" . counsel-find-file)
+          :map minibuffer-local-map
+          ("C-r" . 'counsel-minibuffer-history)
+          :map ivy-minibuffer-map
+          ("TAB" . ivy-alt-done)
+          ("C-l" . ivy-alt-done)
+          ("C-j" . ivy-next-line)
+          ("C-k" . ivy-previous-line)
+          :map ivy-switch-buffer-map
+          ("C-k" . ivy-previous-line)
+          ("C-l" . ivy-done)
+          ("C-d" . ivy-switch-buffer-kill)
+          :map ivy-reverse-i-search-map
+          ("C-k" . ivy-previous-line)
+          ("C-d" . ivy-reverse-i-search-kill))
+    :demand
+    :config
+    (ivy-mode 1)
+    (setq ivy-initial-inputs-alist nil)) ; Don't start searches with ^
+#+end_src
+
+*** Ivy Rich
+
+Provides text alongside M-x commands that describes what they do.
+
+#+begin_src emacs-lisp
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
+#+end_src
+
+*** Hotkeys
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "C-M-j") 'counsel-switch-buffer)
+#+end_src
+
+** Which Key
+
+A package that shows you options for a hotkey. For example if you hit C-c and wait for the defined delay time below, a window will appear showing you your options. Some options in the window:
+- C-h j -> next page
+- C-h q -> close
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :demand
+  :config
+  (which-key-mode 1)
+  (setq which-key-idle-delay 0.1))
+#+end_src
+
+** General (better keybinding)
+
+The ‘General’ package provides a more convenient method for binding keys. Works nicely with evil, too! :D
+
+Package and Leader Definer
+
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-define-key
+   "C-M-j" 'counsel-switch-buffer
+   "C-s" 'counsel-grep-or-swiper)
+
+  (general-create-definer boich/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+  (boich/leader-keys
+   "t" '(:ignore t :which-key "toggles")
+   "tt" '(counsel-load-theme :which-key "choose theme")
+   "r" '(recentf-open-files :which-key "recent files")
+   ))
+#+end_src
+
+** Helpful
+
+Helpful is a package that enriches the documentation provided when using ‘C-h f/v’.
+
+Can also just M-x “^describe…” and see what else you can describe.
+
+#+begin_src emacs-lisp
+(use-package helpful
+    :ensure t
+    :custom
+    (counsel-describe-function-function #'helpful-callable)
+    (counsel-describe-variable-function #'helpful-variable)
+    :bind
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key))
+#+end_src
+
+** Hydra
+
+Hydra is a package that let’s you create little transient keybind “sessions” for an action. So below I’ve got one where I can change my text scale and then finalize it.
+
+- Import the package.
+- Define the transient keybind set.
+- Add them to my general leader keybind.
+
+#+begin_src emacs-lisp
+(use-package hydra)
+
+(defhydra hydra-text-scale (:timeout 4)
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out")
+  ("f" nil "finished" :exit t))
+
+(boich/leader-keys
+  "ts" '(hydra-text-scale/body :which-key "scale-text"))
+#+end_src
+
+** Avy Navigation (Ace Jump Mode)
+
+(Used to be something called [[https://github.com/winterTTr/ace-jump-mode/][Ace Jump Mode]])
+
+This looks like an amazing way to navigate vertically and
+horizontally.
+
+See [[https://github.com/abo-abo/avy][the github]]
+
+There's also a reddit post [[https://www.reddit.com/r/emacs/comments/3e1ozx/acejumpmode_is_dead_long_live_avy/][here]] where people have put a few wonderful
+nuggets of information. I learned there that:
+
+evil-motion-state-map is a thing you can bind stuff to that will only apply during a vim motion. So below 'p' will only be hotkeyed to that if you're in a motion like 'dw'. So for example. You could do 'dpn (then hit the key ascociated with "nuggets", above)' and it would delete everything from where you are up until the word "nuggets". 
+
+
+#+begin_src emacs-lisp
+  (use-package avy)
+  (global-set-key (kbd "C-:") 'avy-goto-word-1)
+
+  (define-key evil-motion-state-map (kbd "p") #'avy-goto-word-1)
+  (define-key evil-motion-state-map (kbd "P") #'avy-goto-line)
+
+#+end_src
+
+So now if I hit C-: then type 1 letter, I can get to any word on the
+screen by hitting the letters it shows next to them. That's pretty dam
+amazing. Enjoy that shit and feel free to change the hotkey.
+
+
+* Development
+
+** Company Mode
+
+To get auto-complete and suggestions in config.org for emacs-lisp
+source blocks, you can use company-mode, which is a popular
+auto-completion framework for Emacs. Setting up company-mode for
+org-mode source blocks requires enabling it in org-mode and ensuring
+that the backend for emacs-lisp is active when editing source blocks.
+
+#+begin_src emacs-lisp
+(use-package company
+  :ensure t
+  :hook ((after-init . global-company-mode)
+         (org-mode . company-mode)
+         (org-src-mode . my-org-mode-company-setup))
+  :config
+  (setq company-idle-delay 0.5
+        company-minimum-prefix-length 2
+        company-tooltip-align-annotations t))
+
+;; Configure emacs-lisp backend for org-mode source blocks
+(defun my-org-mode-company-setup ()
+  (make-local-variable 'company-backends)
+  (add-to-list 'company-backends 'company-elisp))
+
+;; Babel emacs-lisp Setup
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)))
+#+end_src
+
+
