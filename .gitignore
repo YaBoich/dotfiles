@@ -1,0 +1,67 @@
+# ===================================================================================
+# Editors
+# ===================================================================================
+
+# Emacs backup files
+*.*~
+
+# Vim info about your recent edits and other state
+.vim/
+.viminfo
+
+# Neovim plugins
+.config/nvim/plugin/
+
+# ===================================================================================
+# Shells
+# ===================================================================================
+
+# Bash (We're using zsh, so ignore these)
+.bash_history
+.bash_logout
+.bashrc
+.profile
+
+# Zsh
+    # This stores command history
+.zsh_history
+    # Backup created when OhMyZsh is installed
+.zshrc.pre-oh-my-zsh
+    # OhMyZsh main directory; omitting as it can be reinstalled easily
+.oh-my-zsh/ 
+
+# ===================================================================================
+# Ubuntu & WSL specifics
+# ===================================================================================
+
+# Various cache and configuration directories and files
+.cache/
+.local/
+    # Maven's repository directory for Java
+.m2/
+    # Personal environment/script startup file
+.profile/
+    # Used by some shells for command history
+.histfile
+    # Likely related to software for load balancing or web activity
+.lbcookie
+    # Less command's history
+.lesshst
+    # "Message of the Day" shown flag
+.motd_shown
+    # Indicates the user has seen the sudo lecture
+.sudo_as_admin_successful
+    # HSTS (HTTP Strict Transport Security) database for wget
+.wget-hsts
+    # Zsh completion dump; can be regenerated
+.zcompdump*
+
+# ===================================================================================
+# Languages & Package Managers
+# ===================================================================================
+
+    # Node's package manager's cache and configurations
+.npm/
+    # Node Version Manager settings and versions
+.nvm/
+
