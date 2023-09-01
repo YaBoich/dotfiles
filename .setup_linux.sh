@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e # halt on error
+set -e # Halt on error
+set -x # Prints each command to std:err
 
 echo "Starting Ubuntu Setup..."
 
@@ -8,7 +9,9 @@ echo "Starting Ubuntu Setup..."
 # -----------------------------------------------------------------------------------
 echo "Updating Ubuntu and installing common dependencies..."
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl software-properties-common
+sudo apt install -y \
+    curl \
+    software-properties-common
 
 # -----------------------------------------------------------------------------------
 # Switch to Zsh and Oh-My-Zsh
@@ -22,14 +25,18 @@ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.
 # Fonts
 # -----------------------------------------------------------------------------------
 echo "Installing fonts..."
-sudo apt install -y fonts-firacode fonts-cantarell
+sudo apt install -y \
+    fonts-firacode \
+    fonts-cantarell
 
 # -----------------------------------------------------------------------------------
 # Programming Languages
 # -----------------------------------------------------------------------------------
 # Java & Maven
 echo "Installing Java & Maven..."
-sudo apt install -y openjdk-18-jdk maven
+sudo apt install -y \
+    openjdk-18-jdk \
+    maven
 
 # Install nodejs & nvm (for npm)
 echo "Installing NodeJS & NVM..."
@@ -39,15 +46,39 @@ curl -O https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh
 bash install.sh
 rm -rf install.sh
 
+# Pyenv for python version management
+# Deps: https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+echo "Installing pyenv and global python version..."
+sudo apt install -y \
+    build-essential \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncursesw5-dev \
+    tk-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev
+curl https://pyenv.run | bash
+pyenv install 3.10
+pyenv global 3.10
+
 # -----------------------------------------------------------------------------------
 # Editors and Tools
 # -----------------------------------------------------------------------------------
 echo "Installing editors and tools..."
 
-sudo apt install -y \
-    tmux \              # Terminal Multiplexer
-    ripgrep \           # Ripgrep helps grep within editors
-    emacs               # Emacs <3
+# Terminal Multiplexer
+sudo apt install -y tmux
+
+# Ripgrep helps grep within editors
+sudo apt install -y ripgrep
+
+# Emacs <3
+sudo apt install -y emacs
 
 # Install neovim from source: 
 #    https://github.com/neovim/neovim/wiki/Building-Neovim
@@ -61,6 +92,13 @@ make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 make install
 export PATH="$HOME/neovim/bin:$PATH"
 cd ..
+
+# -----------------------------------------------------------------------------------
+# Setup Directories
+# -----------------------------------------------------------------------------------
+echo "Creating directories..."
+
+mkdir Work
 
 # -----------------------------------------------------------------------------------
 # Done! :D

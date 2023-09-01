@@ -90,8 +90,13 @@ org/
 # Languages & Package Managers
 # ===================================================================================
 
+# Javascript/Typescript
     # Node's package manager's cache and configurations
 .npm/
     # Node Version Manager settings and versions
 .nvm/
+
+# Python
+    # Pyenv version manager
+.pyenv/
 
