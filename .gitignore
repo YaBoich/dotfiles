@@ -32,8 +32,9 @@ org/
 
 # Emacs config
 .emacs.d/auto-save-list/
-.emacs.d/config.el
 .emacs.d/elpa/
+.emacs.d/config.el
+.emacs.d/tramp
 
 # ===================================================================================
 # Git

@@ -12,8 +12,14 @@ lsp.ensure_installed({
 	'tsserver',             -- Typescript
     'lua_ls',               -- Lua
     'java_language_server', -- Java
-
+    'pylsp',                -- Python
 })
+
+-- TODO here's how to configure Linters, DAPs, Formatters:
+-- Linters: https://github.com/mfussenegger/nvim-lint
+-- Daps: https://github.com/mfussenegger/nvim-dap
+-- Formatters: https://github.com/mhartington/formatter.nvim
+-- All from: https://github.com/williamboman/mason.nvim#how-to-use-installed-packages
 
 -- Ensure vim-like navigation in LSP menus
 local cmp = require('cmp')
