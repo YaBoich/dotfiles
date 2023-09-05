@@ -99,6 +99,7 @@ alias gdm="git diff origin master"
 alias editConfig="vim ~/.zshrc"
 alias sourceConfig="source ~/.zshrc"
 
+# Directories
 alias dirHome="cd ~/"
 alias dirWork="cd ~/Work"
 
