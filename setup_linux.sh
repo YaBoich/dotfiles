@@ -19,7 +19,7 @@ sudo apt install -y \
 echo "Installing Zsh and Oh-My-Zsh..."
 sudo apt install -y zsh
 chsh -s $(which zsh)
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+RUNZSH=no sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # -----------------------------------------------------------------------------------
 # Fonts
@@ -63,6 +63,12 @@ sudo apt install -y \
     libffi-dev \
     liblzma-dev
 curl https://pyenv.run | bash
+
+# Add pyenv to PATH and initialize
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv virtualenv-init -)"
+
 pyenv install 3.10
 pyenv global 3.10
 
@@ -92,6 +98,7 @@ make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
 make install
 export PATH="$HOME/neovim/bin:$PATH"
 cd ..
+rm -rf neovim/
 
 # -----------------------------------------------------------------------------------
 # Setup Directories
@@ -106,16 +113,22 @@ mkdir Work
 # -----------------------------------------------------------------------------------
 echo "Setting up symlinks..."
 
+rm -rf ~/.zshrc
 ln -s ~/.dotfiles/zshrc ~/.zshrc
 
-ln -s ~/.dotfiles/emacs/ ~/.emacs.d
+rm -rf ~/.emacs.d
+ln -s ~/.dotfiles/emacs ~/.emacs.d
 
 mkdir -p ~/.config
-ln -s ~/.dotfiles/nvim/ ~/.config/nvim
+rm -rf ~/.config/nvim
+ln -s ~/.dotfiles/nvim ~/.config/nvim
 
 
 # -----------------------------------------------------------------------------------
 # Done! :D
 # -----------------------------------------------------------------------------------
 echo "Ubuntu setup complete!"
+
+zsh
+source ~/.zshrc
 

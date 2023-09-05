@@ -14,6 +14,22 @@ cd .dotfiles/
 bash setup-linux.sh
 #+end_src
 
+* Setup
+
+** WSL Ubuntu
+
+To create a fresh install using Windows Subsystem for Linux and Ubuntu.
+
+- Download Ubuntu from the Windows Store if you haven't already.
+- If you have an existing WSL instance and want to get rid of it. Do this in your Window's Powershell:
+
+  #+begin_src powershell
+  wsl --list
+  wsl --unregister Ubuntu
+  #+end_src
+
+  (Replace "Ubuntu" with the name of the instance you want to get rid of.
+- Open Ubuntu again, it will install, then clone this repo into ".dotfiles" and run the setup script.
 
 * Symlinks
 
