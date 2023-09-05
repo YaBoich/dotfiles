@@ -45,3 +45,21 @@ ls -la ~ | grep .emacs.d
 ls -la
 #+end_src
 
+* Helpful Information
+
+** Github Credentials
+
+The easiest way to store github credentials is to generate a classic token and then run the following in a repo:
+
+#+begin_src shell
+git config --global user.email "email here"
+git config --global user.name "name here"
+git config credential.helper store
+git push
+$Username: <your username>
+$Password: <the access token>
+#+end_src
+
+The token will now be stored in plaintext in your root directory under .git-credentials 
+
+Obviously this will be in plain text and is not recommened for important keys. Use with discretion.
