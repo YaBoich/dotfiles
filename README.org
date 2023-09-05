@@ -1,0 +1,31 @@
+#+title: Dotfiles and System Configuration
+
+* Summary
+
+This is my dotfiles directory containing all my personalized system configuration for Linux (Ubuntu).
+
+The setup is as follows:
+- Clone the repo into a ".dotfiles" folder in your home folder.
+- Run the setup-linux.sh script.
+
+#+begin_src shell
+git clone https://github.com/YaBoich/dotfiles .dotfiles/
+cd .dotfiles/
+bash setup-linux.sh
+#+end_src
+
+
+* Symlinks
+
+Symbolic links are created for configuration that is supposed to live in the home directory. Such as:
+
+#+begin_src shell
+ln -s ~/.dotfiles/emacs/ ~/.emacs.d
+
+# Can view symlinks with:
+ls -la ~ | grep .emacs.d
+
+# Or all in a directory with 
+ls -la
+#+end_src
+
