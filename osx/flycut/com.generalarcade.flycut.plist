@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSStatusItem Preferred Position Item-0</key>
+	<real>327</real>
+	<key>ShortcutRecorder mainHotkey</key>
+	<dict>
+		<key>keyCode</key>
+		<integer>9</integer>
+		<key>modifierFlags</key>
+		<integer>1179648</integer>
+	</dict>
+	<key>loadOnStartup</key>
+	<true/>
+	<key>previousSyncClippingsViaICloud</key>
+	<false/>
+	<key>store</key>
+	<dict>
+		<key>displayLen</key>
+		<integer>40</integer>
+		<key>displayNum</key>
+		<integer>10</integer>
+		<key>favoritesList</key>
+		<array/>
+		<key>favoritesRememberNum</key>
+		<integer>40</integer>
+		<key>jcList</key>
+		<array/>
+		<key>rememberNum</key>
+		<integer>40</integer>
+		<key>version</key>
+		<string>0.7</string>
+	</dict>
+</dict>
+</plist>

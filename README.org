@@ -2,21 +2,26 @@
 
 * Summary
 
-This is my dotfiles directory containing all my personalized system configuration for Linux (Ubuntu).
+This is my dotfiles directory containing all my personalized system configuration for Linux (Ubuntu) and Mac (OSX).
 
 The setup is as follows:
 - Clone the repo into a ".dotfiles" folder in your home folder.
-- Run the setup-linux.sh script.
+- Run the setup-linux.sh script or setup-osx.sh script based on your os.
 
 #+begin_src shell
-git clone https://github.com/YaBoich/dotfiles .dotfiles/
-cd .dotfiles/
-bash setup-linux.sh
+  git clone https://github.com/YaBoich/dotfiles .dotfiles/
+  cd .dotfiles/
+
+  bash setup-linux.sh
+  # OR
+  bash setup-osx.sh
 #+end_src
 
 * Setup
 
 ** WSL Ubuntu
+
+NOTE: The Ubuntu/Linux setup script is not idempotent and will break if not run from a fresh installation. Hopefully this will be changed, soon.
 
 To create a fresh install using Windows Subsystem for Linux and Ubuntu.
 
@@ -31,6 +36,12 @@ To create a fresh install using Windows Subsystem for Linux and Ubuntu.
   (Replace "Ubuntu" with the name of the instance you want to get rid of.
 - Open Ubuntu again, it will install, then clone this repo into ".dotfiles" and run the setup script.
 
+** MAC (OSX)
+
+The OSX install script is idempotent and can be really nice to work with. If you simply want to get your system in the desired end-state, run the setup script.
+
+This also enables really nice things as the config.env is sourced in both the setup_osx.sh and the zsh/zshrc (which is where the mac zshrc is currently located). So if you wanted to do something like upgrade your Java version from 17 -> 20, you would simply update the JAVA_VERSION variable in config.env, and then run the setup_osx.sh script. This would install the required java version, and then source your zshrc which references the version. Things just work! :D
+
 * Symlinks
 
 Symbolic links are created for configuration that is supposed to live in the home directory. Such as:
@@ -41,9 +52,11 @@ ln -s ~/.dotfiles/emacs/ ~/.emacs.d
 # Can view symlinks with:
 ls -la ~ | grep .emacs.d
 
-# Or all in a directory with 
+# Or all in a directory with
 ls -la
 #+end_src
+
+A utility function has been written to create symlinks handling a few of the edge-cases. It's found in 'bashutils.sh'.
 
 * Helpful Information
 
@@ -60,6 +73,23 @@ $Username: <your username>
 $Password: <the access token>
 #+end_src
 
-The token will now be stored in plaintext in your root directory under .git-credentials 
+The token will now be stored in plaintext in your root directory under .git-credentials
 
 Obviously this will be in plain text and is not recommened for important keys. Use with discretion.
+
+** plist files on OSX
+
+These are the preference files that OSX applications use.
+Typically found in one of these places:
+- ~/Library/Preferences/...plist
+- ~/Library/Containers/<app-name>/Data/Library/Preferences/...plist
+
+Can convert them to and from xml with the following:
+
+#+begin_src shell
+plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist
+plutil -convert binary1 ~/Library/Preferences/com.googlecode.iterm2.plist
+#+end_src
+
+Any application using them can typically understand either format so we can store them as XML for easier readability.
+

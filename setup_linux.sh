@@ -34,6 +34,7 @@ sudo apt install -y \
 # -----------------------------------------------------------------------------------
 # Java & Maven
 echo "Installing Java & Maven..."
+# TODO update me to openJDK20? (Rather to use the config.env versions)
 sudo apt install -y \
     openjdk-18-jdk \
     maven
@@ -106,7 +107,6 @@ rm -rf neovim/
 echo "Creating directories..."
 
 mkdir ~/Work
-
 
 # -----------------------------------------------------------------------------------
 # Setup Symlinks
