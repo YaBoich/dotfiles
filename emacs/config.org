@@ -761,3 +761,43 @@ that the backend for emacs-lisp is active when editing source blocks.
 #+end_src
 
 
+
+* Trying Random Shit
+
+** Emacs as a Multiplexer (TMUX replacement)
+
+Check out [[https://www.youtube.com/watch?v=X8c_TrGfYcM][This video]]
+
+Ok so I can use M-x Shell
+
+Then C-p and C-n to go through uparrow/downarrow list
+
+*** named shell buffers
+
+#+begin_src emacs-lisp
+  (defun spawn-shell (name)
+    "Create a neew shell buffer with the given name."
+    (interactive "MName of shell buffer to create: ")
+    (pop-to-buffer (get-buffer-create (generate-new-buffer-name name)))
+    (shell (current-buffer)))
+#+end_src
+
+#+RESULTS:
+: spawn-shell
+
+*** vterm
+This dude likes vterm over shell tho, which I might not be able to use on OSX.
+Install vterm
+
+#+begin_src emacs-lisp
+(use-package vterm
+    :ensure t)
+#+end_src
+
+#+RESULTS:
+: t
+
+Multi-vterm is also a thing
+
+Need to install something called libtool-bin
+
