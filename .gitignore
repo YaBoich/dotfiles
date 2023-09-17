@@ -5,9 +5,12 @@
 
 # Emacs backup files
 *.*~
+*~
 \#*\#
 
 emacs/transient/
+emacs/bookmarks
+emacs/recentf
 
 # Undo Tree files
 *.~undo-tree~
