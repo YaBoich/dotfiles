@@ -402,7 +402,15 @@ Hydra is a package that lets you create transient keybind sessions for an action
     "scale text"
     ("j" text-scale-increase "in")
     ("k" text-scale-decrease "out")
-    ("f" nil "finished" :exit t))
+    ("q" nil "finished" :exit t))
+
+  (defhydra hydra-adjust-window (:timeout 4)
+    "grow or shrink the current window"
+    ("h" evil-window-decrease-width "decrease width")
+    ("j" evil-window-decrease-height "decrease height")
+    ("k" evil-window-increase-height "increase width")
+    ("l" evil-window-increase-width "increase width")
+    ("q" nil "finished" :exit t))
 
 #+end_src
 
@@ -449,6 +457,27 @@ amazing. Enjoy that shit and feel free to change the hotkey.
 
 #+end_src
 
+** Window Management Help (evil-window)
+
+Here's a nice workflow tip. When you're using magit or something and a horizontal buffer split happens, you can use 'C-w _' to make the buffer you're on take up MOST of the screen. Here's a table of things for that kind've situation:
+
+NOTE: I've also created a transient keybind session thing using hyrda that lets you adjust your window width/height.
+
+|--------------------+---------+-------------------------------------------------|
+| Situation          | Keybind | Description                                     |
+|--------------------+---------+-------------------------------------------------|
+| Horizontal split   | C-w _   | Make current window take up most of the screen  |
+| Vertical split     | C-w     | Make current window take up most of the screen  |
+| Any split          | C-w o   | Delete all windows except this one              |
+| Any split          | C-w =   | Balance windows                                 |
+|--------------------+---------+-------------------------------------------------|
+| Manage window Size | SPC t w | Begins a hydra session to manage current window |
+| -> (In session)    | h       | Shrink Width (vim style)                        |
+| -> (In session)    | j       | Shrink Height (vim style)                       |
+| -> (In session)    | k       | Increase Height (vim style)                     |
+| -> (In session)    | l       | Increase Width (vim style)                      |
+|--------------------+---------+-------------------------------------------------|
+
 ** Keybinds
 
 |---------+------------------------|
@@ -491,7 +520,8 @@ amazing. Enjoy that shit and feel free to change the hotkey.
   (boich/leader-keys
     "t" '(:ignore t :which-key "toggles")
     "tt" '(counsel-load-theme :which-key "choose theme")
-    "ts" '(hydra-text-scale/body :which-key "scale-text"))
+    "ts" '(hydra-text-scale/body :which-key "scale-text")
+    "tw" '(hydra-adjust-window/body :which-key "adjust-window"))
 
 #+end_src
 
@@ -840,6 +870,127 @@ This lets you just write "<el TAB" and it'll auto create a babel block.
       "oa" '(org-agenda :which-key "agenda")
       "or" '(org-refile :which-key "refile")
       "oc" '(org-capture :which-key "capture"))
+
+#+end_src
+
+
+* Magit [g]
+
+** Install & Configure
+
+#+begin_src emacs-lisp
+  (use-package magit
+  :custom
+  ;; Commit message fill column (72 is conventional width)
+  (git-commit-fill-column 72)
+  ;; Auto revert mode (auto-refresh the status buffer, but not other magit buffers)
+  (magit-auto-revert-mode t)
+  ;; Show refined hunks during diff (shows word-granularity changes)
+  (magit-diff-refine-hunk t)
+
+  :config
+  ;; Use full screen for magit-status, restoring previous window config on quit
+  (setq magit-status-buffer-switch-function 'switch-to-buffer)
+
+  (defun magit-fullscreen-advice (orig-fun &rest args)
+    (window-configuration-to-register :magit-fullscreen)
+    (apply orig-fun args)
+    (delete-other-windows))
+
+  (defun magit-restore-screen-advice (orig-fun &rest args)
+    (window-configuration-to-register :quit-magit)
+    (apply orig-fun args)
+    (jump-to-register :magit-fullscreen))
+
+  (advice-add 'magit-status :around #'magit-fullscreen-advice)
+  (advice-add 'magit-quit-window :around #'magit-restore-screen-advice)
+
+  ;; Integrate with `which-key` if you have it to show magit-dispatch-popup key hints
+  (when (boundp 'which-key-mode)
+    (add-hook 'magit-mode-hook 'which-key-mode)))
+
+#+end_src
+
+** Help
+
+Below are some of the most common/useful keybinds for the main features of Magit.
+
+*** magit-status (SPC g s)
+
+This is the primary Magit interface, where you can see the status of your repository.
+
+|---------+-----------------------------------------------------------------------|
+| Keybind | Function                                                              |
+|---------+-----------------------------------------------------------------------|
+| s       | Stage the file under point or the region.                             |
+| u       | Unstage the file under point or the region.                           |
+| c c     | Commit the staged changes (finalize with C-c C-c in the mini-buffer). |
+| F F     | Pull from the remote repository.                                      |
+| P P     | Push to the remote repository.                                        |
+| d d     | Diff unstaged changes.                                                |
+| D D     | Diff committed changes.                                               |
+| l l     | View the log (commit history).                                        |
+| b b     | Switch branches.                                                      |
+| x       | Discard changes in the file under point or the region.                |
+| TAB     | Toggle visibility of diff for a file or commit details.               |
+|---------+-----------------------------------------------------------------------|
+
+*** magit-dispatch (SPC g d)
+
+This brings up a pop-up window with a list of Magit commands you can execute, providing a quick access to various Magit commands.
+
+|---------+----------------|
+| Keybind | Function       |
+|---------+----------------|
+| l       | Log pop-up.    |
+| d       | Diff pop-up.   |
+| f       | Fetch pop-up.  |
+| P       | Push pop-up.   |
+| F       | Pull pop-up.   |
+| b       | Branch pop-up. |
+| m       | Merge pop-up.  |
+|---------+----------------|
+
+*** magit-file-dispatch (SPC g f)
+
+This is a pop-up specifically for actions related to files.
+
+|---------+---------------------------|
+| Keybind | Function                  |
+|---------+---------------------------|
+| s       | Stage the current file.   |
+| u       | Unstage the current file. |
+| d       | Diff the current file.    |
+|---------+---------------------------|
+
+** Keybinds
+
+|---------+-----------------------------|
+| Keybind | Description                 |
+|---------+-----------------------------|
+| SPC-g s | Magit Status                |
+| SPC-g d | Dispatch general menu       |
+| SPC-g f | Dispatch menu for this file |
+| SPC-g b | Magit Blame                 |
+| SPC-g S | Magit Stash                 |
+| SPC-g B | Branch & Checkout           |
+| SPC-g m | Merge                       |
+| SPC-g r | Rebase                      |
+| SPC-g p | Pull                        |
+|---------+-----------------------------|
+
+#+begin_src emacs-lisp
+  (boich/leader-keys
+    "g" '(:ignore t :which-key "git (magit)")
+    "gs" '(magit-status :which-key "status")
+    "gd" '(magit-dispatch :which-key "dispatch")
+    "gf" '(magit-file-dispatch :which-key "dispatch (file)")
+    "gb" '(magit-blame :which-key "blame")
+    "gS" '(magit-stash :which-key "stash")
+    "gB" '(magit-branch-and-checkout :which-key "branch and checkout")
+    "gm" '(magit-merge :which-key "merge")
+    "gr" '(magit-rebase :which-key "rebase")
+    "gp" '(magit-pull :which-key "pull"))
 
 #+end_src
 
