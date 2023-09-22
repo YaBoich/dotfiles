@@ -11,6 +11,9 @@
 emacs/transient/
 emacs/bookmarks
 emacs/recentf
+emacs/.org-id-locations
+emacs/custom.el
+emacs/org-roam.db
 
 # Undo Tree files
 *.~undo-tree~
