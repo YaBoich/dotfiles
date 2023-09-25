@@ -124,6 +124,13 @@ The SPC key now is the key to invoke our general boich/leader-keys keybind "name
 
 #+end_src
 
+** Make fullscreen after init
+
+#+begin_src emacs-lisp
+  (add-hook 'after-init-hook 'toggle-frame-fullscreen)
+
+#+end_src
+
 
 * Interface
 
@@ -209,6 +216,8 @@ Can have custom font settings per face type.
 
 ** Icons
 
+*** all-the-icons
+
 #+begin_src emacs-lisp
   (use-package all-the-icons)
 
@@ -218,6 +227,20 @@ Can have custom font settings per face type.
       (all-the-icons-install-fonts t)))
 
   (boich/all-the-icons-ensure-fonts-installed)
+
+#+end_src
+
+*** nerd-icons
+
+#+begin_src emacs-lisp
+  (use-package nerd-icons)
+
+  (defun boich/nerd-icons-ensure-installed ()
+    "Ensure that nerd-icons fonts are installed."
+    (unless (find-font (font-spec :name "nerd-icons"))
+      (nerd-icons-install-fonts t)))
+
+  (boich/nerd-icons-ensure-installed)
 
 #+end_src
 
