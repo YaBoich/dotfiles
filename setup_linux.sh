@@ -198,7 +198,7 @@ mkdir -p ~/Org
 stderr "--------------------- Setting Up Final Symlinks ----------------------------"
 
 rm -rf ~/.zshrc
-ln -s ~/.dotfiles/zshrc ~/.zshrc
+ln -s ~/.dotfiles/ubuntu/zshrc ~/.zshrc
 
 rm -rf ~/.emacs.d
 ln -s ~/.dotfiles/emacs ~/.emacs.d

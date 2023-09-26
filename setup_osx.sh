@@ -162,7 +162,7 @@ mkdir -p $HOME/.config
 symlink $SCRIPT_DIR/nvim $HOME/.config/nvim
 
 # Zsh config
-symlink $SCRIPT_DIR/zsh/zshrc $HOME/.zshrc
+symlink $SCRIPT_DIR/osx/zshrc $HOME/.zshrc
 
 # -----------------------------------------------------------------------------------
 # Create Directories
