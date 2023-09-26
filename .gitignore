@@ -17,6 +17,7 @@ emacs/org-roam.db
 emacs/.lsp-session-*
 emacs/history
 emacs/places
+emacs/.cache
 
 # Undo Tree files
 *.~undo-tree~
