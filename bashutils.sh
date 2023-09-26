@@ -26,6 +26,14 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+command_has_output() {
+    # command_has_output(check_command)
+    #   Evaluates the provided command and returns true if the command produces output.
+    #   This is useful for checking the presence of things based on custom commands.
+    local check_command="$1"
+    eval "$check_command" &> /dev/null
+}
+
 idem_install() {
     # idem_install(command, install_function)
     #   A generic idempotent install, takes a command or tool and its 

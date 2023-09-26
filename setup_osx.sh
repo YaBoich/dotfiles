@@ -23,7 +23,7 @@ brew_install_cask() {
     fi
 }
 
-stderr "Starting OSX Setup..."
+stderr "------------------------- Starting OSX Setup -------------------------------"
 
 # -----------------------------------------------------------------------------------
 # Install Homebrew
