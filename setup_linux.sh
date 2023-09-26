@@ -73,6 +73,10 @@ eval "$(pyenv virtualenv-init -)"
 pyenv install 3.10
 pyenv global 3.10
 
+# Direnv
+echo "Installing direnv..."
+apt-get install direnv
+
 # -----------------------------------------------------------------------------------
 # Editors and Tools
 # -----------------------------------------------------------------------------------

@@ -23,6 +23,8 @@ brew_install_cask() {
     fi
 }
 
+stderr "Starting OSX Setup..."
+
 # -----------------------------------------------------------------------------------
 # Install Homebrew
 # -----------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ brew install \
     maven
 
 # Install Node.js & NVM
-echo "Installing NodeJS & NVM..."
+stderr "Installing NodeJS & NVM..."
 brew install nvm
 mkdir -p ~/.nvm # creating working dir if it doesn't exist
 export NVM_DIR="$HOME/.nvm"
@@ -80,7 +82,7 @@ nvm install "$NODE_VERSION"
 nvm use "$NODE_VERSION"
 
 # Pyenv & Python
-echo "Installing pyenv and global python version..."
+stderr "Installing pyenv and global python version..."
 brew install pyenv
 if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init --path)"
@@ -96,6 +98,20 @@ if [[ $(pyenv version-name) != "$PYTHON_VERSION" ]]; then
 else
     stderr "Python $PYTHON_VERSION is already set as the global version."
 fi
+
+# Rust
+stderr "Installing Rust and its developer tools..."
+brew install rustup
+if command -v rustc 1>/dev/null 2>&1; then
+    rustup-init -y
+    rustup component add rust-analyzer
+    rustup component add rust-src
+    cargo install cargo-edit
+fi
+
+# Direnv
+stderr "Installing direnv..."
+brew install direnv
 
 # -----------------------------------------------------------------------------------
 # Editors and Tools
@@ -161,13 +177,12 @@ mkdir -p "~/Org"
 # -----------------------------------------------------------------------------------
 stderr "============================= All Done! :D ================================="
 
-zsh
-source $HOME/.zshrc
-
-
 END_TIME=$(date +%s)
 ELAPSED_TIME=$((END_TIME - START_TIME))
 MINUTES=$((ELAPSED_TIME / 60))
 SECONDS=$((ELAPSED_TIME % 60))
 stderr "Finished setup in: $MINUTES minutes and $SECONDS seconds"
+
+zsh
+source $HOME/.zshrc
 
