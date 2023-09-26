@@ -14,6 +14,9 @@ emacs/recentf
 emacs/.org-id-locations
 emacs/custom.el
 emacs/org-roam.db
+emacs/.lsp-session-*
+emacs/history
+emacs/places
 
 # Undo Tree files
 *.~undo-tree~
