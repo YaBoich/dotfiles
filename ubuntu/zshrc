@@ -168,3 +168,7 @@ piprmenv() {                                           # Remove virtual environm
     [ -d "venv" ] && rm -r venv || echo "No 'venv' directory found.";
 }
 
+#---------------------------- Doom Emacs --------------------------------------------
+
+export PATH=$HOME/.emacs.d/bin:$PATH
+

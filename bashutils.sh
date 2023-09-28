@@ -60,6 +60,7 @@ idem_install() {
 #  over the place
 symlink() {
     # symlink(source, target)
+    # flags: --force / -f : Force creation of symlink
     #   Creates a symlink, handling the following scenarios:
     #   - target doesn't exist 
     #       -> create the symlink
@@ -68,9 +69,20 @@ symlink() {
     #   - target is symlink already, pointing at source 
     #       -> do nothing
     #   - target is symlink already, pointing somewhere else 
-    #       -> throw an error
+    #       -> throw an error UNLESS --force flag is provided.
     # @param source is the thing being linked to
     # @param target is the "fake" file/dir linking to source
+
+    local force=false
+
+    # Check for flags
+    while [[ "$1" =~ ^- ]]; do
+        case "$1" in
+            --force|-f) force=true; shift ;;
+            *) stderr "Unknown flag: $1"; return 1 ;;
+        esac
+    done
+
     local source="$1"
     local target="$2"
 
@@ -87,8 +99,15 @@ symlink() {
             stderr "Symlink $target already points to $source. Doing nothing."
             return
         else
-            stderr "Error: $target points to $current_link, not $source."
-            return 1  # Exits with an error status
+	    if [[ "$force" = false ]]; then
+                stderr "Error: $target points to $current_link, not $source."
+                return 1
+            else
+                stderr "$target will be overridden due to --force flag."
+                local backup="${target}.$(date +%Y%m%d%H%M%S).backup"
+                mv "$target" "$backup"
+                stderr "Existing symlink $target backed up to $backup"
+            fi
         fi
     fi
 
