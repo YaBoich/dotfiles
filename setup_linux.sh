@@ -227,7 +227,7 @@ else
 
     ~/.emacs.d/bin/doom sync
     ~/.emacs.d/bin/doom env
-    emacs --batch -f nerd-icons-install-fonts
+    # emacs --batch -f nerd-icons-install-fonts # TODO currently not working.
 
     stderr "Setup doom emacs."
 fi
