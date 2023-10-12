@@ -9,6 +9,7 @@
 \#*\#
 
 emacs/runtime/
+emacs/eln-cache/
 
 # Config modules are literate org files that tangle into corresponding .el files.
 emacs/modules/*.el
