@@ -148,6 +148,19 @@ else
     pyenv global "$PYTHON_VERSION"
 fi
 
+# Rust
+stderr "Installing Rust and its developer tools..."
+
+if command_exists rustup; then
+    stderr "Rust already installed"
+else
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+    rustup component add rust-analyzer
+    rustup component add rust-src
+    cargo install cargo-edit
+fi
+
 # Direnv
 echo "Installing direnv..."
 install_program direnv
@@ -227,7 +240,8 @@ else
 
     ~/.emacs.d/bin/doom sync
     ~/.emacs.d/bin/doom env
-    # emacs --batch -f nerd-icons-install-fonts # TODO currently not working.
+    # TODO currently not working. Need to do manually in emacs
+    # emacs --batch -f nerd-icons-install-fonts
 
     stderr "Setup doom emacs."
 fi

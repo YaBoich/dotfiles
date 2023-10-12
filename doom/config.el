@@ -31,6 +31,17 @@
 
 (setq org-directory "~/Org/")
 
+;; ### TRYING TO GET RUST WORKING ###
+;; Adding cargo to emacs path
+(setenv "PATH" (concat "/home/boich/.cargo/bin:" (getenv "PATH")))
+(setq exec-path (append '("/home/boich/.cargo/bin") exec-path))
+
+(after! rustic
+  (setq rustic-lsp-server 'rust-analyzer))
+
+;; (with-eval-after-load 'rustic
+;;   (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
 ;;

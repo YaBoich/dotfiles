@@ -168,7 +168,20 @@ piprmenv() {                                           # Remove virtual environm
     [ -d "venv" ] && rm -r venv || echo "No 'venv' directory found.";
 }
 
-#---------------------------- Doom Emacs --------------------------------------------
+#---------------------------- Doom Emacs ---------------------------------------------
 
 export PATH=$HOME/.emacs.d/bin:$PATH
 
+# Rust
+source "$HOME/.cargo/env"
+
+# Direnv
+eval "$(direnv hook zsh)"
+
+export TMP=/tmp
+export TEMP=/tmp
+
+#---------------------------- Emacs Aliases ------------------------------------------
+
+alias bmacs="emacs --init-directory ~/.dotfiles/emacs/ &"
+alias dmacs="emacs --init-directory ~/.emacs.d/ &"
