@@ -2,19 +2,68 @@
 
 ;;; Commentary:
 
-;; This file does not define the Emacs configuration, rather it points
-;; to the core literate config file, and any other modules, that should
-;; be loaded.
+;; Building Emacs from source.
+;; Date: 08/10/2023
+;; Emacs version 29.1
+;; Org version 9.6.6
+
+;; This file does not define the Emacs configuration, rather it loads
+;; individual literate config files.  This requires a recent
+;; org-version as the built-in version otherwise there can be plenty
+;; of issues. Using an 'apt install emacs' type thing, likely won't
+;; work with this config. See the README for instructions on building
+;; Emacs from source.
 
 ;;; Code:
 
-;; Bootstrap core Emacs config
+(defgroup boich nil
+  "Customization group for Boich Emacs settings."
+  :prefix "boich/"
+  :group 'emacs)
+
+;; TODO: Maybe a 'set' config with all these.
+(defcustom boich/line-width 80
+  "Default line width to use."
+  :type 'int
+  :group 'boich)
+(setq fill-column boich/line-width)
+
+;; ==============================================================================
+;; Load config modules
+;; ==============================================================================
+(defcustom boich/modules-dir (expand-file-name "modules/" user-emacs-directory)
+  "Directory containing configuration modules."
+  :type 'string
+  :group 'boich)
+
 (require 'org)
-(org-babel-load-file (expand-file-name "config.org" user-emacs-directory))
+(defun boich/load-module (MODULE)
+  "Load config MODULE from modules-dir by fname, expects to receive an org file."
+  (org-babel-load-file
+   (expand-file-name (concat MODULE ".org") boich/modules-dir)))
 
-;; Load custom Org config (if it exists)
-(let ((org-literate-config-file (expand-file-name "README.org" org-directory)))
-  (when (file-exists-p org-literate-config-file)
-    (org-babel-load-file org-literate-config-file)))
+(defun boich/load-external (DIR FILE)
+  "Load an external org file as literate config. DIR is the directory containing
+the file, and FILE is the name of the org file without the '.org' extension."
+  (let ((fullpath (expand-file-name (concat FILE ".org") DIR)))
+    (if (file-exists-p fullpath)
+        (org-babel-load-file fullpath)
+      (error "ERROR: Failed to load external module (\"%s\" \"%s\")" DIR FILE))))
 
-;;; init.el ends here
+;; ------------------ Core Modules ----------------------------------------------
+(boich/load-module "base")        ;; Runtime paths, Package management, Vim keybindings, Interface.
+(boich/load-module "core")        ;; Completion, File & Project Navigation, Helpful features.
+(boich/load-module "org")         ;; Core Org Setup, Ricing, Babel, Roam.
+(boich/load-module "development") ;; Company completions, Git.
+
+;; ------------------ Personalization -------------------------------------------
+(boich/load-module "keybinds")    ;; All keybinds in 1 place.
+
+;; ------------------ Language Specifics ----------------------------------------
+(boich/load-module "zig")         ;; Really looking forward to learning this one!
+
+;; ------------------ External Modules ------------------------------------------
+(boich/load-external "~/Org/" "README") ;; My Org Mode setup.
+
+;; TODO figure out why this keeps re-setting
+(setq fill-column boich/line-width)

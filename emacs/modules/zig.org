@@ -1,0 +1,15 @@
+#+title: Zig
+#+author: Charlie Verwer
+#+date: 11/10/2023
+
+#+begin_src emacs-lisp
+;;  (use-package zig-mode
+;;    :mode "\\.zig\\'")
+
+  (defun boich/zig-setup ()
+    (eglot)             ;; Start eglot LSP
+    (tree-sitter-mode)  ;; Start tree-sitter for structural highlighting
+    (flymake-mode))     ;; Start flymake for on-the-fly syntax checking
+
+  ;; (add-hook 'zig-mode-hook 'boich/zig-setup
+#+end_src
