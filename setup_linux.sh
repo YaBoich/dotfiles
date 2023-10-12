@@ -148,6 +148,19 @@ else
     pyenv global "$PYTHON_VERSION"
 fi
 
+# Rust
+stderr "Installing Rust and its developer tools..."
+
+if command_exists rustup; then
+    stderr "Rust already installed"
+else
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+    rustup component add rust-analyzer
+    rustup component add rust-src
+    cargo install cargo-edit
+fi
+
 # Direnv
 echo "Installing direnv..."
 install_program direnv
@@ -197,15 +210,41 @@ mkdir -p ~/Org
 # -----------------------------------------------------------------------------------
 stderr "--------------------- Setting Up Final Symlinks ----------------------------"
 
-rm -rf ~/.zshrc
-ln -s ~/.dotfiles/ubuntu/zshrc ~/.zshrc
+# Zsh Config
+symlink ~/.dotfiles/ubuntu/zshrc ~/.zshrc
 
-rm -rf ~/.emacs.d
-ln -s ~/.dotfiles/emacs ~/.emacs.d
+# Emacs Config (Switching to Doom for a while)
+# symlink -f ~/.dotfiles/doom ~/.emacs.d
 
+# Neovim Config
 mkdir -p ~/.config
-rm -rf ~/.config/nvim
-ln -s ~/.dotfiles/nvim ~/.config/nvim
+symlink ~/.dotfiles/nvim ~/.config/nvim
+
+# -----------------------------------------------------------------------------------
+# Doom Emacs
+# -----------------------------------------------------------------------------------
+stderr "--------------------- Setting up Doom Emacs --------------------------------"
+
+# (https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org)
+if command_exists "$HOME/.emacs.d/bin/doom"; then
+    stderr "Doom Emacs already setup."
+
+else
+    # Doom Emacs Dependancies
+    install_program fd-find "fdfind"
+
+    # Point .doom.d to my config
+    symlink ~/.dotfiles/doom ~/.doom.d
+
+    git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.emacs.d/
+
+    ~/.emacs.d/bin/doom sync
+    ~/.emacs.d/bin/doom env
+    # TODO currently not working. Need to do manually in emacs
+    # emacs --batch -f nerd-icons-install-fonts
+
+    stderr "Setup doom emacs."
+fi
 
 # -----------------------------------------------------------------------------------
 # Done! :D
