@@ -192,6 +192,8 @@ Avy instant navigation:
     "cc" '(counsel-company :which-key "completion")
     "ca" '(eglot-code-actions :which-key "actions")
     "cr" '(eglot-rename :which-key "rename symbol")
+    "cg" '(diff-hl-mode :which-key "toggle git diff indicator")
+    "cG" '(diff-hl-margin-mode :which-key "toggle git margin indicator")
     "cf" '(:ignore t :which-key "find")
     "cfD" '(xref-find-definitions :which-key "definitions (xref: M-.)")
     "cfR" '(xref-find-references :which-key "references (xref: M-?)")
