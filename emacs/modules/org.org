@@ -1,0 +1,148 @@
+#+title: Ricing Org Mode
+#+author: Charlie Verwer
+#+date: 10/10/2023
+
+This setups Org Core, Org Babel, and Org Roam base settings.
+
+There are no set files/directories, capture templates, archive settings, etc... in this
+config. Those things should be defined separately on a per user, per setup, preference.
+
+For example you could use:
+
+A separate *~/Org/* directory containing its own literate config in a *README.org*. This
+way the following can all be set or contained locally within the org config relative to
+itself:
+- =org-directory=
+- =org-roam-directory=
+- =org-archive-location=
+- =org-capture-templates=
+- Actual capture template files.
+- Actual org files.
+- Actual org-roam files.
+... and whatever else you might have related to your actual collection of org files and
+configuration.
+
+And then just evaluate it as an external module in the =init.el= file.
+
+#+begin_src emacs-lisp
+  (defgroup boich/org nil
+    "Customization group for Boich Org Config"
+    :prefix "boich-org/"
+    :group 'boich)
+#+end_src
+
+* Setup Hook
+
+#+begin_src emacs-lisp
+  (defcustom boich/org-fill-column 80
+    "Org mode fill column value."
+    :type 'int
+    :group 'boich/org)
+
+  (defun boich/org-mode-setup()
+    "Setup hook run on org-mode buffers"
+    (org-indent-mode 1)
+    (setq fill-column boich/org-fill-column)
+    (auto-fill-mode 1)
+    (setq evil-auto-indent nil)
+    (setq org-src-tab-acts-natively t)
+    (setq org-ellipsis "...")
+    (setq org-hide-emphasis-markers t)
+    (setq org-agenda-start-with-log-mode t)
+    (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+    (setq org-return-follows-link t))  ; Follow links with ENTER
+
+  (add-hook 'org-mode-hook 'boich/org-mode-setup)
+
+  ;; Open links with ENTER in evil
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal org-mode-map (kbd "RET") 'org-open-at-point))
+#+end_src
+
+* Bullets & Faces
+
+#+begin_src emacs-lisp
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode))
+
+  (with-eval-after-load 'org-faces
+    (dolist (face '((org-level-1 . 1.4)
+                    (org-level-2 . 1.3)
+                    (org-level-3 . 1.2)
+                    (org-level-4 . 1.1)
+                    (org-level-5 . 1)
+                    (org-level-6 . 1)
+                    (org-level-7 . 1)
+                    (org-level-8 . 1)))
+      (set-face-attribute (car face) nil
+                          :font "Fira Code"
+                          :weight 'regular
+                          :height (cdr face))))
+  ;; Can pick a nice variable width font like 'Cantarell' for headings.
+
+  ;; Replace list hyphens with dots, uses a regex got the dot from here:
+  ;; https://fsymbols.com/signs/bullet-point/
+  (font-lock-add-keywords
+   'org-mode
+   '(("^ *\\([-]\\) "
+      (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+#+end_src
+
+* Visual Fill
+
+#+begin_src emacs-lisp
+  (defcustom boich/org-visual-fill-column 100
+    "Width of the visual fill column when viewing individual org buffers."
+    :type 'int
+    :group 'boich/org)
+
+  (defun boich/org-mode-visual-fill ()
+    (setq visual-fill-column-width boich/org-visual-fill-column
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  (use-package visual-fill-column
+    :defer t
+    :hook (org-mode . boich/org-mode-visual-fill))
+#+end_src
+
+* Babel
+
+This lets you just write "<el TAB" and it'll auto create a babel block for emacs-lisp.
+
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (shell . t)))
+
+  (setq org-confirm-babel-evaluate nil)
+
+  (require 'org-tempo)
+
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+#+end_src
+
+* Org Roam
+
+NOTE: We do not enable org-roam-mode here as the =org-roam-directory= does not
+exist. You should do this in your actual org config.
+
+Also setup your own =org-roam-db-location=, keep all your org-roam stuff with your
+actual Org/ directory.
+
+Something like =(org-roam-mode)=
+
+#+begin_src emacs-lisp
+  (use-package org-roam)
+#+end_src
+
+* Help
+
+- C-c ': Opens a source block in its major mode in a separate window.
+- C-M-\: Indent region

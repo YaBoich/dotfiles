@@ -1,0 +1,65 @@
+#+title: Boich Emacs Configuration
+#+author: Charlie Verwer
+#+date: 11/10/2023
+
+This is my custom emacs setup. It assumes that you're working with Emacs version
+29 or above.
+
+* Building emacs from source
+
+** Ubuntu (WSL)
+
+#+begin_src shell
+  # Create a directory to put it in
+  mkdir ~/emacs29
+  cd ~/emacs29
+  git clone --depth 1 -b emacs-29.1 https://git.savannah.gnu.org/git/emacs.git ./
+
+  # Get required packages
+  sudo apt-get update
+  sudo apt-get install \
+       autoconf \
+       texinfo \
+       libgtk-3-dev \
+       libxaw7-dev \
+       libgif-dev 
+
+  # Extra required packages
+  sudo apt-get install libgccjit-11-dev libgccjit-11-doc # For native-compilation
+  sudo apt-get install libjansson4 libjansson-dev # For fast JSON
+  sudo apt install libtool libtool-bin # Needed for vterm
+
+  # Configure and build
+  ./autogen.sh
+  ./configure --with-native-compilation --with-json \
+              --with-mailutils --without-compress-install
+  make -j16
+
+  # src/emacs is now your executable
+  ~/emacs29/src/emacs --version
+#+end_src
+
+For extra arguments, run =./configure --help=. Some nice ones include:
+- --with-native-compilation
+- --with-json
+- --with-mailutils
+- --without-compress-install
+
+You'll need libggcjit (An Emacs Lisp Native Compiler) to use
+--with-native-compilation. Install with the following steps:
+- Run =gcc --version= and note which version you have.
+- Run =apt search libgccjit=
+- Install the =libgccjit-<gcc-version>-dev. Example (libgccjit-11-dev).
+
+When running =make=, can provide number of cores. Find out how many you have with
+=nproc= command and run =make -j16= (if you have 16 cores).
+
+See link for more information:
+
+https://www.masteringemacs.org/article/speed-up-emacs-libjansson-native-elisp-compilation
+
+** Windows
+
+See link:
+
+https://readingworldmagazine.com/emacs/2022-02-24-compiling-emacs-29-from-source-on-windows/

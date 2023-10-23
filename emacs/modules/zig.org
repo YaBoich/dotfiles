@@ -1,0 +1,25 @@
+#+title: Zig
+#+author: Charlie Verwer
+#+date: 11/10/2023
+
+A few assumptions here:
+- Zig has been installed.
+- Zls has been installed.
+
+#+begin_src emacs-lisp
+  (use-package zig-mode
+    :mode "\\.zig\\'")
+
+  (defun boich/zig-setup ()
+    (eglot-ensure)      ;; Start eglot LSP
+    (company-mode 1)    ;; Completion
+    ;; (tree-sitter-mode)  ;; Start tree-sitter for structural highlighting
+    (flymake-mode 1))   ;; Start flymake for on-the-fly syntax checking
+
+  (add-hook 'zig-mode-hook 'boich/zig-setup)
+#+end_src
+
+TODOs
+- get tree sitter working!
+- company-complete suggests things. Bind it to something.
+

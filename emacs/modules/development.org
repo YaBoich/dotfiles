@@ -1,0 +1,192 @@
+#+title: Development Basics
+#+author: Charlie Verwer
+#+date: 10/10/2023
+
+This video:
+https://www.youtube.com/watch?v=iAjIoKqbmg8
+
+* Company Completion
+
+#+begin_src emacs-lisp
+  (use-package company)
+#+end_src
+
+* Treesitter
+
+Comes installed with Emacs.
+
+Need to install thingies per language.
+
+`treesit-install-language-grammar'
+
+* Flymake
+
+TODO
+
+* Eldoc
+
+TODO
+
+* Treemacs
+
+#+begin_src emacs-lisp
+  (use-package treemacs)
+#+end_src
+
+* Eglot
+
+Going through to docs: https://github.com/joaotavora/eglot
+
+As of Emacs 29 (The version I'm using) this is built in.
+
+Adding servers is done via the `eglot-server-programs' variable. Which doesn't
+seem to exist! :D
+
+I guess I'll just try run "eglot" in a code buffer.
+
+* VTerm
+
+#+begin_src emacs-lisp
+  (use-package vterm)
+#+end_src
+
+* Automatically pair parentheses
+
+TODO this is causing issues when creating org babel blocks because it pairs:
+- <el "> (THIS)"
+  
+#+begin_src emacs-lisp
+;;  (electric-pair-mode t)
+#+end_src
+
+* Local VCS Change Indication
+
+This shows me diffs within programming buffers.
+
+I could also add diffs in dired and other modes, see below.
+
+There are multiple modes you can use listed [[https://github.com/dgutov/diff-hl#about][here]]:
+- =diff-hl-dired-mode= provides similar functionality in Dired.
+- =diff-hl-margin-mode= changes the highlighting function to use the margin instead of the fringe.
+- =diff-hl-amend-mode= sets the reference revision to the one before recent one. Also, you could use diff-hl-set-reference-rev to set it to any revision, see its docstring for details.
+- =diff-hl-flydiff-mode= implements highlighting changes on the fly.
+- =diff-hl-show-hunk-mouse-mode= makes fringe and margin react to mouse clicks to show the corresponding hunk. That's the alternative to using diff-hl-show-hunk and friends.
+
+#+begin_src emacs-lisp
+  (use-package diff-hl
+    :config
+    (diff-hl-margin-mode 1))
+
+  ;; Enable `diff-hl' support by default in programming buffers
+  (add-hook 'prog-mode-hook #'diff-hl-mode)
+#+end_src
+
+* Whitespace Mode
+
+If you copy and paste things you can sometimes get a *zero-width whitespace*. These are the most annoying things that exist. Whitespace mode helps you identify stuff like this.
+
+You can enable this by running =(whitespace-mode)=. It'll show those zero-width whitespaces as diamonds.
+
+#+begin_src emacs-lisp
+  (require 'whitespace)
+
+  ;; Add the zero-width space to the whitespace-style
+  (setq whitespace-style '(face tabs spaces trailing lines space-before-tab
+                                newline indentation empty space-after-tab
+                                space-mark tab-mark newline-mark))
+
+  ;; Add the zero-width space to the display mappings
+  (setq whitespace-display-mappings
+        '(
+          ;; (space-mark ?\u200B [?·]) ; display zero-width space as middle dot
+          (space-mark ?\u200B [?◊]) ; display zero-width space as diamond
+          (newline-mark ?\n [?\u00B6 ?\n]) ; end-of-line
+          (tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t]) ; tab
+          ))
+#+end_src
+
+* Git
+
+#+begin_src emacs-lisp
+  (use-package magit
+    :custom
+    ;; Commit message fill column (72 is conventional width)
+    (git-commit-fill-column 72)
+    ;; Auto revert mode (auto-refresh the status buffer, but not other magit buffers)
+    (magit-auto-revert-mode t)
+    ;; Show refined hunks during diff (shows word-granularity changes)
+    (magit-diff-refine-hunk t)
+
+    :config
+    ;; Use full screen for magit-status, restoring previous window config on quit
+    (setq magit-status-buffer-switch-function 'switch-to-buffer)
+
+    (defun magit-fullscreen-advice (orig-fun &rest args)
+      (window-configuration-to-register :magit-fullscreen)
+      (apply orig-fun args)
+      (delete-other-windows))
+
+    (defun magit-restore-screen-advice (orig-fun &rest args)
+      (window-configuration-to-register :quit-magit)
+      (apply orig-fun args)
+      (jump-to-register :magit-fullscreen))
+
+    (advice-add 'magit-status :around #'magit-fullscreen-advice)
+    (advice-add 'magit-quit-window :around #'magit-restore-screen-advice)
+
+    ;; Integrate with `which-key` if you have it to show magit-dispatch-popup key hints
+    (when (boundp 'which-key-mode)
+      (add-hook 'magit-mode-hook 'which-key-mode)))
+#+end_src
+
+** Help
+
+Below are some of the most common/useful keybinds for the main features of Magit.
+
+*** magit-status (SPC g s)
+
+This is the primary Magit interface, where you can see the status of your repository.
+
+|---------+-----------------------------------------------------------------------|
+| Keybind | Function                                                              |
+|---------+-----------------------------------------------------------------------|
+| s       | Stage the file under point or the region.                             |
+| u       | Unstage the file under point or the region.                           |
+| c c     | Commit the staged changes (finalize with C-c C-c in the mini-buffer). |
+| F F     | Pull from the remote repository.                                      |
+| P P     | Push to the remote repository.                                        |
+| d d     | Diff unstaged changes.                                                |
+| D D     | Diff committed changes.                                               |
+| l l     | View the log (commit history).                                        |
+| b b     | Switch branches.                                                      |
+| x       | Discard changes in the file under point or the region.                |
+| TAB     | Toggle visibility of diff for a file or commit details.               |
+|---------+-----------------------------------------------------------------------|
+
+*** magit-dispatch (SPC g d)
+
+This brings up a pop-up window with a list of Magit commands you can execute, providing a quick access to various Magit commands.
+
+|---------+----------------|
+| Keybind | Function       |
+|---------+----------------|
+| l       | Log pop-up.    |
+| d       | Diff pop-up.   |
+| f       | Fetch pop-up.  |
+| P       | Push pop-up.   |
+| F       | Pull pop-up.   |
+| b       | Branch pop-up. |
+| m       | Merge pop-up.  |
+|---------+----------------|
+
+*** magit-file-dispatch (SPC g f)
+
+This is a pop-up specifically for actions related to files.
+
+|---------+---------------------------|
+| Keybind | Function                  |
+|---------+---------------------------|
+| s       | Stage the current file.   |
+| u       | Unstage the current file. |
+| d       | Diff the current file.    |
+|---------+---------------------------|

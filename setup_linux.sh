@@ -170,14 +170,51 @@ install_program direnv
 # -----------------------------------------------------------------------------------
 stderr "-------------------- Installing Editors & Tools ----------------------------"
 
+# TODO: Add -y flags or switch to install functions in this section to avoid disk
+#  space prompts.
+
 # Terminal Multiplexer
 install_program tmux
 
 # Ripgrep helps grep within editors
 install_program ripgrep "rg"
 
-# Emacs <3
-install_program emacs
+# Install Emacs from source <3
+# TODO - should make install to be able to check for command_exists
+if command_exists "emacs"; then
+    stderr "Emacs already installed"
+else
+    # Create a directory to put it in
+    mkdir ~/emacs29
+    cd ~/emacs29
+    git clone --depth 1 -b emacs-29.1 https://git.savannah.gnu.org/git/emacs.git ./
+
+    # Get required packages
+    sudo apt-get update
+    sudo apt-get install \
+        autoconf \
+        texinfo \
+        libgtk-3-dev \
+        libxaw7-dev \
+        libgif-dev
+
+    # Extra required packages
+    sudo apt-get install libgccjit-11-dev libgccjit-11-doc # For native-compilation
+    sudo apt-get install libjansson4 libjansson-dev # For fast JSON
+    sudo apt install libtool libtool-bin # Needed for vterm
+
+    # Configure and build
+    ./autogen.sh
+    ./configure --with-native-compilation --with-json \
+        --with-mailutils --without-compress-install
+    make -j16
+
+    # ~/emacs29/src/emacs is now your executable
+    ~/emacs29/src/emacs --version
+
+    sudo make install
+    cd ~/.dotfiles/
+fi
 
 # Install neovim from source:
 #    https://github.com/neovim/neovim/wiki/Building-Neovim
@@ -185,16 +222,16 @@ install_program emacs
 if command_exists "nvim"; then
     stderr "Neovim already installed"
 else
+    mkdir ~/neovim9
+    cd ~/neovim9
     sudo apt-get install ninja-build gettext cmake unzip
-    git clone https://github.com/neovim/neovim -b release-0.9 neovim
-    cd neovim
+    git clone https://github.com/neovim/neovim -b release-0.9 ./
     make CMAKE_BUILD_TYPE=Release # RelWithDebInfo
     rm -r build/  # clear the CMake cache
-    make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim"
+    make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$HOME/neovim9"
     make install
-    export PATH="$HOME/neovim/bin:$PATH"
-    cd ..
-    rm -rf neovim/
+    export PATH="$HOME/neovim9/bin:$PATH"
+    cd ~/.dotfiles/
 fi
 
 # -----------------------------------------------------------------------------------
@@ -203,7 +240,7 @@ fi
 stderr "--------------------- Creating Directories ---------------------------------"
 
 mkdir -p ~/Work
-mkdir -p ~/Org
+mkdir -p ~/Org # TODO This is a git directory. How should I handle in my public repo?
 
 # -----------------------------------------------------------------------------------
 # Setup Symlinks
@@ -213,8 +250,10 @@ stderr "--------------------- Setting Up Final Symlinks ------------------------
 # Zsh Config
 symlink ~/.dotfiles/ubuntu/zshrc ~/.zshrc
 
-# Emacs Config (Switching to Doom for a while)
-# symlink -f ~/.dotfiles/doom ~/.emacs.d
+# Emacs Config
+symlink ~/.dotfiles/emacs ~/.emacs.d
+# symlink -f ~/.dotfiles/doom ~/.emacs.d (For using doom)
+# Can also direct emacs29 with --init-directory
 
 # Neovim Config
 mkdir -p ~/.config
@@ -226,25 +265,25 @@ symlink ~/.dotfiles/nvim ~/.config/nvim
 stderr "--------------------- Setting up Doom Emacs --------------------------------"
 
 # (https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org)
-if command_exists "$HOME/.emacs.d/bin/doom"; then
-    stderr "Doom Emacs already setup."
-
-else
-    # Doom Emacs Dependancies
-    install_program fd-find "fdfind"
-
-    # Point .doom.d to my config
-    symlink ~/.dotfiles/doom ~/.doom.d
-
-    git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.emacs.d/
-
-    ~/.emacs.d/bin/doom sync
-    ~/.emacs.d/bin/doom env
-    # TODO currently not working. Need to do manually in emacs
-    # emacs --batch -f nerd-icons-install-fonts
-
-    stderr "Setup doom emacs."
-fi
+## if command_exists "$HOME/.emacs.d/bin/doom"; then
+##     stderr "Doom Emacs already setup."
+## 
+## else
+##     # Doom Emacs Dependancies
+##     install_program fd-find "fdfind"
+## 
+##     # Point .doom.d to my config
+##     symlink ~/.dotfiles/doom ~/.doom.d
+## 
+##     git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.emacs.d/
+## 
+##     ~/.emacs.d/bin/doom sync
+##     ~/.emacs.d/bin/doom env
+##     # TODO currently not working. Need to do manually in emacs
+##     # emacs --batch -f nerd-icons-install-fonts
+## 
+##     stderr "Setup doom emacs."
+## fi
 
 # -----------------------------------------------------------------------------------
 # Done! :D

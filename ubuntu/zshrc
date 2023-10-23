@@ -50,7 +50,7 @@ PROMPT='$(vi_mode_prompt_info)'$PROMPT
 #--------------------------------- Neovim -------------------------------------------
 # nvim by default, alias should protect us if nvim doesn't exist
 # Otherwise - good luck using nano, lol.
-export PATH="$HOME/neovim/bin:$PATH"
+export PATH="$HOME/neovim9/bin:$PATH"
 if command -v nvim > /dev/null 2>&1; then
     alias vim='nvim' 
 fi

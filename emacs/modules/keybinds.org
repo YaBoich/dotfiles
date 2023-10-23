@@ -1,0 +1,204 @@
+#+title: Get anywhere in 3 key presses or less!
+#+author: Charlie Verwer
+#+date: 10/10/2023
+
+We define ALL keybind configuration in a single file. Keeps things simple.
+
+* General (custom keybinds)
+
+The General package provides a more convenient method for binding keys. Works
+nicely with evil, too! :D
+
+#+begin_src emacs-lisp
+  (use-package general)
+
+  (general-create-definer boich/leader-keys
+                          :keymaps '(normal insert visual emacs)
+                          :prefix "SPC"
+                          :global-prefix "C-SPC")
+#+end_src
+
+The SPC key now is the key to invoke our general boich/leader-keys keybind
+"namespace".
+
+Remember that `C-c' is the major-mode keybind namespace. Use it in any
+makor-mode to access keybinds specific to that mode.
+
+* Hydra
+
+Hydra is a package that lets you create transient keybind sessions for an
+action. So below I’ve got one where I can change my text scale and then finalize
+it.
+
+#+begin_src emacs-lisp
+  (use-package hydra)
+#+end_src
+
+* Editor Navigation
+
+Avy instant navigation:
+- Jump to anywhere.
+- Jump to anywhere within a vim motion using 'p' or 'P')
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-;") 'avy-goto-word-1)
+
+  (define-key evil-motion-state-map (kbd "p") #'avy-goto-word-1)
+  (define-key evil-motion-state-map (kbd "P") #'avy-goto-line)
+#+end_src
+
+* Files & Buffers [f]
+
+#+begin_src emacs-lisp
+  (boich/leader-keys
+   "f" '(:ignore t :which-key "files & buffers")
+   "fb" '(counsel-switch-buffer :which-key "switch buffer")
+   "fs" '(counsel-find-file :which-key "switch path")
+   "fr" '(recentf-open-files :which-key "recent files (menu)")
+   "fR" '(counsel-recentf :which-key "recent files (search)")
+   "fg" '(projectile-grep :which-key "grep files")
+   "ff" '(projectile--find-file :which-key "find file")
+   "fd" '(projectile-find-dir :which-key "find dir")
+   "fh" '(dired-jump :which-key "dired here")
+   "fp" '(projectile-command-map :which-key "projectile command map"))
+
+  ;; Allow fullscreening in OSX
+  (global-set-key (kbd "M-s-f") 'toggle-frame-fullscreen)
+
+  (general-define-key
+   "C-s" 'counsel-grep-or-swiper)
+#+end_src
+
+* Toggles [t]
+
+#+begin_src emacs-lisp
+  (defhydra hydra-text-scale (:timeout 4)
+            "scale text"
+            ("j" (text-scale-increase 0.2) "in")
+            ("k" (text-scale-decrease 0.2) "out")
+            ("q" nil "finished" :exit t))
+
+  (defhydra hydra-adjust-window (:timeout 4)
+            "grow or shrink the current evil window"
+            ("h" evil-window-decrease-width "decrease width")
+            ("j" evil-window-decrease-height "decrease height")
+            ("k" evil-window-increase-height "increase width")
+            ("l" evil-window-increase-width "increase width")
+            ("q" nil "finished" :exit t))
+
+  (boich/leader-keys
+   "t" '(:ignore t :which-key "toggles")
+   "tt" '(counsel-load-theme :which-key "choose theme")
+   "ts" '(hydra-text-scale/body :which-key "scale-text")
+   "tw" '(hydra-adjust-window/body :which-key "adjust-window"))
+#+end_src
+
+#+RESULTS:
+
+* Org [o]
+
+#+begin_src emacs-lisp
+  (boich/leader-keys
+   "o" '(:ignore t :which-key "org")
+   "oa" '(org-agenda :which-key "agenda")
+   "of" '(org-refile :which-key "refile")
+   "oc" '(:ignore t :which-key "clock")
+   "op" '(org-capture :which-key "capture")
+   "oci" '(org-clock-in :which-key "clock in")
+   "oco" '(org-clock-out :which-key "clock out")
+   "ocr" '(org-clock-report :which-key "clock report")
+   "or" '(:ignore t :which-key "roam")
+   "orf" '(org-roam-node-find :which-key "find file")
+   "orb" '(org-roam-buffer-toggle :which-key "buffer")
+   "ori" '(org-roam-node-insert :which-key "insert")
+   "orc" '(org-roam-capture :which-key "capture")
+   "ord" '(org-roam-dailies-capture-today :which-key "daily"))
+#+end_src
+
+|----------+----------------------------------------------|
+| Keybind  | Action                                       |
+|----------+----------------------------------------------|
+| za       | Vim toggle collapse/expand header            |
+| C-c C-l  | Insert Link                                  |
+| C-c C-o  | open-at-point (Can use enter)                |
+| SPC-o a  | org-agenda                                   |
+| SPC-o f  | org-refile                                   |
+| SPC-o r  | Roam menu                                    |
+| SPC-o p  | org-capture                                  |
+| SPC-o ci | org-clock-in                                 |
+| SPC-o co | org-clock-out                                |
+| SPC-o cr | org-clock-report                             |
+| C-c C-c  | Re-evaluate clock table after adjusting tags |
+|----------+----------------------------------------------|
+| ======== | Specifically for Org-Babel                   |
+|----------+----------------------------------------------|
+| C-c '    | org-edit-source-code within a block          |
+| C-x C-s  | Save source edit buffer (for above)          |
+| C-x C-c  | Close source edit buffer (for above)         |
+|----------+----------------------------------------------|
+
+* Emacs [e]
+
+#+begin_src emacs-lisp
+  (boich/leader-keys
+   "e" '(:ignore t :which-key "emacs")
+   "eq" '(save-buffers-kill-emacs :which-key "quit")
+   "ec" '(desktop-clear :which-key "clear cached desktop sesh")
+   "ef" '(toggle-frame-fullscreen :which-key "fullscreen (toggle)")
+   "el" '(boich/load-session :which-key "load cached desktop sesh")
+   "es" '(boich/save-session :which-key "save cached desktop sesh")
+   "er" '(restart-emacs :which-key "restart"))
+#+end_src
+
+* Magit / Git [g]
+
+|---------+-----------------------------|
+| Keybind | Description                 |
+|---------+-----------------------------|
+| SPC-g s | Magit Status                |
+| SPC-g d | Dispatch general menu       |
+| SPC-g f | Dispatch menu for this file |
+| SPC-g b | Magit Blame                 |
+| SPC-g S | Magit Stash                 |
+| SPC-g B | Branch & Checkout           |
+| SPC-g m | Merge                       |
+| SPC-g r | Rebase                      |
+| SPC-g p | Pull                        |
+|---------+-----------------------------|
+
+#+begin_src emacs-lisp
+  (boich/leader-keys
+    "g" '(:ignore t :which-key "git (magit)")
+    "gs" '(magit-status :which-key "status")
+    "gd" '(magit-dispatch :which-key "dispatch")
+    "gf" '(magit-file-dispatch :which-key "dispatch (file)")
+    "gb" '(magit-blame :which-key "blame")
+    "gS" '(magit-stash :which-key "stash")
+    "gB" '(magit-branch-and-checkout :which-key "branch and checkout")
+    "gm" '(magit-merge :which-key "merge")
+    "gr" '(magit-rebase :which-key "rebase")
+    "gp" '(magit-pull :which-key "pull"))
+#+end_src
+
+* Code [c]
+
+#+begin_src emacs-lisp
+  (boich/leader-keys
+    "c" '(:ignore t :which-key "code")
+    "ct" '(vterm :which-key "terminal (vterm)")
+    "cp" '(treemacs-add-and-display-current-project-exclusively :which-key "project explorer tree")
+    "cP" '(treemacs-add-and-display-current-project :which-key "project explorer (additive)")
+    ;; "cc" '('completion-at-point :which-key "completion at point")
+    "cc" '(counsel-company :which-key "completion")
+    "ca" '(eglot-code-actions :which-key "actions")
+    "cr" '(eglot-rename :which-key "rename symbol")
+    "cg" '(diff-hl-mode :which-key "toggle git diff indicator")
+    "cG" '(diff-hl-margin-mode :which-key "toggle git margin indicator")
+    "cf" '(:ignore t :which-key "find")
+    "cfD" '(xref-find-definitions :which-key "definitions (xref: M-.)")
+    "cfR" '(xref-find-references :which-key "references (xref: M-?)")
+    "cfd" '(eglot-find-declaration :which-key "declaration")
+    "cfi" '(eglot-find-implementation :which-key "implementation")
+    "cft" '(eglot-find-typeDefinition :which-key "type definition")
+    )
+#+end_src

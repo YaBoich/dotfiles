@@ -8,6 +8,13 @@
 *~
 \#*\#
 
+emacs/runtime/
+emacs/eln-cache/
+
+# Config modules are literate org files that tangle into corresponding .el files.
+emacs/modules/*.el
+
+# TODO - these may all be deleted now since the runtime/ folder addition
 emacs/transient/
 emacs/bookmarks
 emacs/recentf
