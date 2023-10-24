@@ -34,25 +34,6 @@ command_has_output() {
     eval "$check_command" &> /dev/null
 }
 
-idem_install() {
-    # idem_install(command, install_function)
-    #   A generic idempotent install, takes a command or tool and its 
-    #   installation function.
-    #   Here you can cater the installation function per OS or package manager.
-    # Example: idem_install "npm" install_npm
-    #   Where "install_npm" is a function containing something like:
-    #     "brew install npm"
-    local check_command="$1"
-    local install_function="$2"
-
-    if command_exists "$check_command"; then
-        stderr "$check_command already installed."
-    else
-        $install_function
-        stderr "Installed $check_command."
-    fi
-}
-
 # Files and Folders
 # ------------------------------------------------------------------------------
 
@@ -114,4 +95,33 @@ symlink() {
     # Create or replace the symlink
     ln -sf "$source" "$target"
     stderr "Created or replaced symlink: $target -> $source"
+}
+
+#------------------------------ Functions -------------------------------------------
+
+# Single command to extract compressed files
+extract() {
+    if [ -f $1 ]; then
+        case $1 in
+            *.tar.bz2)  tar xvjf $1    ;;
+            *.tar.gz)   tar xvzf $1    ;;
+            *.bz2)      bunzip2 $1     ;;
+            *.rar)      unrar x $1     ;;
+            *.gz)       gunzip $1      ;;
+            *.tar)      tar xvf $1     ;;
+            *.tbz2)     tar xvjf $1    ;;
+            *.tgz)      tar xvzf $1    ;;
+            *.zip)      unzip $1       ;;
+            *.Z)        uncompress $1  ;;
+            *.7z)       7z x $1        ;;
+            *)          echo "don't know how to extract '$1'..." ;;
+        esac
+    else
+        echo "'$1' is not a valid file!"
+    fi
+}
+
+# Create a new directory and navigate to it
+mkd() {
+    mkdir -p "$@" && cd "$@"
 }

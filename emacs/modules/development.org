@@ -13,11 +13,25 @@ https://www.youtube.com/watch?v=iAjIoKqbmg8
 
 * Treesitter
 
-Comes installed with Emacs.
+Comes installed with Emacs if included in the build (--with-tree-sitter).
 
-Need to install thingies per language.
+I've done this and have put a symlink to the dynamic libraries (language
+grammars) in my =$BIN= folder. These were built seperately.
 
-`treesit-install-language-grammar'
+#+begin_src emacs-lisp
+  (setq treesit-extra-load-path
+        (list (concat (getenv "BIN") "/tree-sitter-grammars/")))
+
+  (require 'treesit)
+  (treesit-available-p)
+  (treesit-language-available-p 'python)
+#+end_src
+
+Can now use major modes with it. Such as: =python-ts-mode=
+
+Run =M-x treesit-explore-mode= to view its inner workings.
+
+Also something called `treesit-install-language-grammar' exists?
 
 * Flymake
 
@@ -28,6 +42,8 @@ TODO
 TODO
 
 * Treemacs
+
+Project file explorer tree.
 
 #+begin_src emacs-lisp
   (use-package treemacs)

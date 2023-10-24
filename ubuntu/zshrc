@@ -1,31 +1,36 @@
-#####################################################################################
-#                               ZSH Basic Config                                    #
-#####################################################################################
 
-export PATH=$HOME/bin:/usr/local/bin:$PATH # Ensure PATH consistency
-export ZSH="$HOME/.oh-my-zsh" # Oh-My-Zsh path
+######################################################################################
+# Custom Paths & Variables
+######################################################################################
+
+export DOWNLOADS="$HOME/Downloads"
+export BIN="$HOME/bin"
+export WORK="$HOME/Work"
+
+# TODO - would be nice to not have this hardcoded.
+#      - and to not duplicate this here and in setup.
+export CONFIG="$HOME/.dotfiles"
+
+######################################################################################
+# Basic Config
+######################################################################################
+
+export PATH="$PATH:$BIN:/usr/local/bin" # Ensure PATH consistency
+export ZSH="$HOME/.oh-my-zsh"           # Oh-My-Zsh path
 
 # Themes: https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="random"
 ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" )
 
-ENABLE_CORRECTION="true" # Enable command auto-correction
+ENABLE_CORRECTION="true"       # Enable command auto-correction
 COMPLETION_WAITING_DOTS="true" # Waiting dots during completion
                                # WARN: Can cause issues with multi-line prompts
-
-# Troubleshooting (Uncomment as required):
-# DISABLE_MAGIC_FUNCTIONS="true"  # Helps if pasting URLs/text is misbehaving
-# DISABLE_UNTRACKED_FILES_DIRTY="true"  # Speeds up status check for large repos
-# HIST_STAMPS="mm/dd/yyyy"  # Changes the history command timestamp format
 
 # Plugins -> Standard: $ZSH/plugins/ || Custom: $ZSH_CUSTOM/plugins/
 plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
-
-#####################################################################################
-#                                MY CONFIG                                          #
-#####################################################################################
+source $CONFIG/bashutils.sh # Helper Functions
 
 #---------------------------- VIM Bindings & Modes ----------------------------------
 bindkey -v  # Enable vi keybindings in terminal
@@ -50,7 +55,9 @@ PROMPT='$(vi_mode_prompt_info)'$PROMPT
 #--------------------------------- Neovim -------------------------------------------
 # nvim by default, alias should protect us if nvim doesn't exist
 # Otherwise - good luck using nano, lol.
-export PATH="$HOME/neovim9/bin:$PATH"
+
+# TODO this shouldn't be accurate after a reinstall
+export PATH="$HOME/neovim$NEOVIM_VERSION/bin:$PATH"
 if command -v nvim > /dev/null 2>&1; then
     alias vim='nvim' 
 fi
@@ -118,35 +125,6 @@ alias nid="npm install --save-dev"
 alias nst="npm start"
 alias nt="npm test"
 
-#------------------------------ Functions -------------------------------------------
-
-# Single command to extract compressed files
-extract() {
-    if [ -f $1 ]; then
-        case $1 in
-            *.tar.bz2)  tar xvjf $1    ;;
-            *.tar.gz)   tar xvzf $1    ;;
-            *.bz2)      bunzip2 $1     ;;
-            *.rar)      unrar x $1     ;;
-            *.gz)       gunzip $1      ;;
-            *.tar)      tar xvf $1     ;;
-            *.tbz2)     tar xvjf $1    ;;
-            *.tgz)      tar xvzf $1    ;;
-            *.zip)      unzip $1       ;;
-            *.Z)        uncompress $1  ;;
-            *.7z)       7z x $1        ;;
-            *)          echo "don't know how to extract '$1'..." ;;
-        esac
-    else
-        echo "'$1' is not a valid file!"
-    fi
-}
-
-# Create a new directory and navigate to it
-mkd() {
-    mkdir -p "$@" && cd "$@"
-}
-
 #---------------------------- Python stuff ------------------------------------------
 
 alias pipup="pip install --upgrade pip"                # Upgrade pip itself
@@ -162,6 +140,7 @@ pipshow() { pip show "$1"; }                           # Show package details
 pipeditable() { pip install -e "$1"; }                 # Install package in editable mode
 
 pipmkenv() { python -m venv "$1"; }                    # Create new virtual environment
+
 alias pipact="source venv/bin/activate"                # Activate virtual environment
 alias pipdeact="deactivate"                            # Deactivate virtual environment
 piprmenv() {                                           # Remove virtual environment
