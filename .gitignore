@@ -8,35 +8,18 @@
 *~
 \#*\#
 
+# Single folder for all Emacs runtime/generated files and folders.
+# As defined in my Emacs configuration.
 emacs/runtime/
-emacs/eln-cache/
 
 # Config modules are literate org files that tangle into corresponding .el files.
 emacs/modules/*.el
-
-# TODO - these may all be deleted now since the runtime/ folder addition
-emacs/transient/
-emacs/bookmarks
-emacs/recentf
-emacs/.org-id-locations
-emacs/custom.el
-emacs/org-roam.db
-emacs/.lsp-session-*
-emacs/history
-emacs/places
-emacs/.cache
 
 # Undo Tree files
 *.~undo-tree~
 
 # Neovim plugins
 nvim/plugin/
-
-# Emacs config
-emacs/auto-save-list/
-emacs/elpa/
-emacs/config.el
-emacs/tramp
 
 # ===================================================================================
 # OS Stuff

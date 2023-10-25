@@ -99,6 +99,12 @@ Define a customization group for all path configuration.
     :group 'boich/paths)
   (setq bookmark-default-file boich/bookmarks-file)
 
+  (defcustom boich/eln-cache-dir (expand-file-name "eln-cache/" boich/runtime-dir)
+    "Native compilation .eln files directory."
+    :type 'directory
+    :group 'boich/paths)
+  (setq native-comp-eln-load-path (list boich/eln-cache-dir))
+
 #+end_src
 
 * Package Management

@@ -1,45 +1,38 @@
 #!/bin/bash
 
-#TODO: Which shebang? #!/usr/bin/env bash  ??
+# ====================================================================================
+# A collection of functions that install software, languages & tools.
+#
+# These do not work in isolation, they are part of my personal config. They are not
+# pure functions. They assume certain environment variables such as $DOWNLOADS, $BIN,
+# and $CONFIG, and also have specific requirement. Each will validate its required
+# environment.
+# ====================================================================================
 
-set -e # Halt on error
-# set -x # Prints each command to std:err
-START_TIME=$(date +%s)
+# Checks the existence of provided environment variables and exits if any are unset.
+# Usage:
+#     check_env VAR1 VAR2 VAR3 ...
+# Example:
+#     check_env "DOWNLOADS" "BIN" "CONFIG"
+#     check_env "JAVA_VERSION"
+check_env() {
+    for var in "$@"; do
+        if [[ -z "${!var}" ]]; then
+            echo "Error: \$$var is not set. Cannot proceed without required env."
+            exit 1
+        fi
+    done
+}
 
-# Ensure we have sudo privileges
-sudo -v
-
-# NOTE:
-#  A lot of big blocks building stuff from source can just be disabled
-#  by removing their ; at the end of the block. This means it doesn't
-#  run. Say if you didn't want to build Python. Just remove the ; at the
-#  end of its block.
-
-# TODO: Starting to get a lot of stuff here. Might be nice to move all blocks
-#  out and then just call them here for a quick overview. I.e: Move install_python
-#  to another file, then here just have:
-#   install_python
-#   install_java
-#   ... etc
-
-# -----------------------------------------------------------------------------------
-# Set Directories, Paths, Variables & Utils
-# -----------------------------------------------------------------------------------
-DOWNLOADS="$HOME/Downloads"
-[[ ! -d $DOWNLOADS ]] && mkdir -p $DOWNLOADS
-
-BIN="$HOME/bin"
-[[ ! -d $BIN ]] && mkdir -p $BIN
-
-WORK="$HOME/Work"
-[[ ! -d $WORK ]] && mkdir -p $WORK
-
-# TODO - would be nice to not have this hardcoded.
-CONFIG="$HOME/.dotfiles"
-[[ ! -d $CONFIG ]] && mkdir -p $CONFIG
+# Ensure required environment
+check_env "HOME" "DOWNLOADS" "BIN" "CONFIG"
 
 source $CONFIG/bashutils.sh
 source $CONFIG/config.env
+
+# ------------------------------------------------------------------------------------
+# Utils
+# ------------------------------------------------------------------------------------
 
 install_program() {
     # install_program(program_name, command_name: optional)
@@ -71,56 +64,24 @@ install_package() {
     fi
 }
 
-stderr "----------------------- Starting Ubuntu Setup ------------------------------"
-
-# -----------------------------------------------------------------------------------
-# Ubuntu and Common Dependencies
-# -----------------------------------------------------------------------------------
-stderr "Updating Ubuntu and installing common dependencies..."
-sudo apt update && sudo apt upgrade -y
-
-install_program curl
-install_program software-properties-common
-
-# -----------------------------------------------------------------------------------
-# Switch to Zsh and Oh-My-Zsh
-# -----------------------------------------------------------------------------------
-stderr "--------------------- Installing Zsh & Oh-My-Zsh ---------------------------"
-install_program zsh
-
-if [ "$SHELL" != "$(which zsh)" ]; then
-    chsh -s $(which zsh)
-fi
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    RUNZSH=no sh -c \
-	"$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi
-
-# -----------------------------------------------------------------------------------
-# Fonts
-# -----------------------------------------------------------------------------------
-stderr "-------------------------- Installing fonts --------------------------------"
-
-# Fonts don't have a command
-install_package "fonts-firacode" "fc-list | grep 'Fira Code'"
-install_package "fonts-cantarell" "fc-list | grep 'Cantarell'"
-
-# -----------------------------------------------------------------------------------
-# Programming Languages
-# -----------------------------------------------------------------------------------
-stderr "------------------------ Installing Languages ------------------------------"
+# ------------------------------------------------------------------------------------
+# Programming Languages and their Tooling
+# ------------------------------------------------------------------------------------
 
 # Java & Maven
-{
+install_java() {
     stderr "Installing Java & Maven..."
+    check_env "JAVA_VERSION"
+
     install_program openjdk-"$JAVA_VERSION"-jdk
     install_program "maven" "mvn"
-};
-
+}
 
 # Install nodejs & nvm (for npm)
-{
+install_nodejs() {
     stderr "Installing NVM & NodeJS..."
+    check_env "NVM_VERSION" "NODE_VERSION"
+
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
@@ -136,13 +97,15 @@ stderr "------------------------ Installing Languages --------------------------
 
     nvm install "$NODE_VERSION"
     nvm use "$NODE_VERSION"
-};
+}
 
 # Install Pyenv and Python
-{
+install_python() {
     # Pyenv for python version management
     # Deps: https://github.com/pyenv/pyenv/wiki#suggested-build-environment
     stderr "Installing pyenv and global python version..."
+    check_env "PYTHON_VERSION"
+
     if command_exists "pyenv"; then
 	stderr "Pyenv already installed"
     else
@@ -181,10 +144,10 @@ stderr "------------------------ Installing Languages --------------------------
 	pyenv install "$PYTHON_VERSION"
 	pyenv global "$PYTHON_VERSION"
     fi
-};
+}
 
-# Rust
-{
+# Rust and Rust Analyzer
+install_rust() {
     stderr "Installing Rust and its developer tools..."
 
     if command_exists rustup; then
@@ -196,11 +159,12 @@ stderr "------------------------ Installing Languages --------------------------
 	rustup component add rust-src
 	cargo install cargo-edit
     fi
-};
+}
 
-# Zig
-{
+# Zig from source
+install_zig() {
     stderr "Installing Zig and its developer tools..."
+    check_env "ZIG_VERSION" "ZIG_COMMIT"
 
     if command_exists zig; then
 	stderr "Zig already installed"
@@ -234,28 +198,14 @@ stderr "------------------------ Installing Languages --------------------------
 
 	cd $CONFIG
     fi
-};
+}
 
-# Direnv
-echo "Installing direnv..."
-install_program direnv
-
-# -----------------------------------------------------------------------------------
-# Editors and Tools
-# -----------------------------------------------------------------------------------
-stderr "-------------------- Installing Editors & Tools ----------------------------"
-
-# TODO: Add -y flags or switch to install functions in this section to avoid disk
-#  space prompts.
-
-# Terminal Multiplexer
-install_program tmux
-
-# Ripgrep helps grep within editors
-install_program ripgrep "rg"
+# ------------------------------------------------------------------------------------
+# Editor and Tools
+# ------------------------------------------------------------------------------------
 
 # Tree Sitter
-{
+install_tree_sitter() {
     stderr "Installing tree sitter"
 
     if [[ -e /usr/local/lib/libtree-sitter.a ]]; then
@@ -267,29 +217,31 @@ install_program ripgrep "rg"
 	sudo make install
 	cd $CONFIG
     fi
-};
+}
 
 # Tree Sitter Bulk Grammars
 # (https://git.savannah.gnu.org/cgit/emacs.git/tree/admin/notes/tree-sitter/starter-guide?h=feature/tree-sitter#n56)
 # In emacs: Set treesit-extra-load-path to the dist/ directory where these dynamic libraries end up.
 # Or add them to your /usr/local/lib which is where your system expects them to be.
-{
+install_tree_sitter_grammars() {
     stderr "Installing tree sitter grammars"
 
-    git clone https://github.com/casouri/tree-sitter-module.git $DOWNLOADS/tree-sitter-grammars
-    cd $DOWNLOADS/tree-sitter-grammars
-    JOBS=8 ./batch.sh
-    ln -s "$DOWNLOADS/tree-sitter-grammars/dist" "$BIN/tree-sitter-grammars"
-    cd $CONFIG
+    if [[ -e $BIN/tree-sitter-grammars ]]; then
+	stderr "Treesitter grammars already installed"
+    else
+	git clone https://github.com/casouri/tree-sitter-module.git $DOWNLOADS/tree-sitter-grammars
+	cd $DOWNLOADS/tree-sitter-grammars
+	JOBS=8 ./batch.sh
+	ln -s "$DOWNLOADS/tree-sitter-grammars/dist" "$BIN/tree-sitter-grammars"
+	cd $CONFIG
+    fi
 }
 
-# TODO not sure if this is required (confirm next time you do a reinstall)
-#  stuck between tree-sitter and emacs before this.
-# sudo ldconfig 
-# ldconfig -v | grep /usr/local/lib
+# Emacs from source <3
+install_emacs() {
+    stderr "Installing Emacs from Source"
+    check_env "EMACS_VERSION" "EMACS_BRANCH"
 
-# Install Emacs from source <3
-{
     if command_exists "emacs"; then
 	stderr "Emacs already installed"
     else
@@ -299,7 +251,7 @@ install_program ripgrep "rg"
 
 	# Get required packages
 	sudo apt-get update
-	sudo apt-get install \
+	sudo apt-get install -y \
 	    autoconf \
 	    texinfo \
 	    libgtk-3-dev \
@@ -327,88 +279,37 @@ install_program ripgrep "rg"
 	sudo make install
 	cd $CONFIG
     fi
-};
+}
 
 # Install neovim from source:
 #    https://github.com/neovim/neovim/wiki/Building-Neovim
 #    https://github.com/neovim/neovim/wiki/Installing-Neovim#install-from-source
-{
+install_neovim() {
+    stderr "Installing Neovim from Source"
+    check_env "NEOVIM_VERSION" "NEOVIM_BRANCH"
+
     if command_exists "nvim"; then
 	stderr "Neovim already installed"
     else
 	mkdir $DOWNLOADS/neovim$NEOVIM_VERSION
 	cd $DOWNLOADS/neovim$NEOVIM_VERSION
 
-	sudo apt-get install -y ninja-build gettext cmake unzip
+	sudo apt-get install -y \
+	     ninja-build \
+	     gettext \
+	     cmake \
+	     unzip
 
 	git clone https://github.com/neovim/neovim -b $NEOVIM_BRANCH ./
 	make CMAKE_BUILD_TYPE=Release # RelWithDebInfo
 	rm -r build/  # clear the CMake cache
-	make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$BIN/neovim$NEOVIM_VERSION"
-	make install
+
+	# could just build to: $BIN/neovim$NEOVIM_VERSION - w/e you like...
+	make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr/local/neovim/$NEOVIM_VERSION"
+	sudo make install
+
+	ln -s "/usr/local/neovim/$NEOVIM_VERSION/bin/nvim" "$BIN/nvim"
+	
 	cd $CONFIG
     fi
-};
-
-# --- Misc ---
-
-# TODO
-mkdir -p ~/Org # TODO This is a private git directory. How should I handle in my public repo?
-
-# -----------------------------------------------------------------------------------
-# Setup Symlinks
-# -----------------------------------------------------------------------------------
-stderr "--------------------- Setting Up Final Symlinks ----------------------------"
-
-# Zsh Config
-symlink ~/.dotfiles/ubuntu/zshrc ~/.zshrc
-
-# Emacs Config
-symlink ~/.dotfiles/emacs ~/.emacs.d
-# symlink -f ~/.dotfiles/doom ~/.emacs.d (For using doom)
-# Can also direct emacs29 with --init-directory
-
-# Neovim Config
-mkdir -p ~/.config
-symlink ~/.dotfiles/nvim ~/.config/nvim
-
-# -----------------------------------------------------------------------------------
-# Doom Emacs
-# -----------------------------------------------------------------------------------
-stderr "--------------------- Setting up Doom Emacs --------------------------------"
-
-# (https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org)
-## if command_exists "$HOME/.emacs.d/bin/doom"; then
-##     stderr "Doom Emacs already setup."
-## 
-## else
-##     # Doom Emacs Dependancies
-##     install_program fd-find "fdfind"
-## 
-##     # Point .doom.d to my config
-##     symlink ~/.dotfiles/doom ~/.doom.d
-## 
-##     git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.emacs.d/
-## 
-##     ~/.emacs.d/bin/doom sync
-##     ~/.emacs.d/bin/doom env
-##     # TODO currently not working. Need to do manually in emacs
-##     # emacs --batch -f nerd-icons-install-fonts
-## 
-##     stderr "Setup doom emacs."
-## fi
-
-# -----------------------------------------------------------------------------------
-# Done! :D
-# -----------------------------------------------------------------------------------
-stderr "============================= All Done! :D ================================="
-
-END_TIME=$(date +%s)
-ELAPSED_TIME=$((END_TIME - START_TIME))
-MINUTES=$((ELAPSED_TIME / 60))
-SECONDS=$((ELAPSED_TIME % 60))
-stderr "Finished setup in: $MINUTES minutes and $SECONDS seconds"
-
-zsh
-source ~/.zshrc
-
+}

@@ -2,7 +2,8 @@
 
 * Summary
 
-This is my dotfiles directory containing all my personalized system configuration for Linux (Ubuntu) and Mac (OSX).
+This is my dotfiles directory containing all my personalized system
+configuration for Linux (Ubuntu) and Mac (OSX).
 
 The setup is as follows:
 - Clone the repo into a ".dotfiles" folder in your home folder.
@@ -21,12 +22,14 @@ The setup is as follows:
 
 ** WSL Ubuntu
 
-NOTE: The Ubuntu/Linux setup script is not idempotent and will break if not run from a fresh installation. Hopefully this will be changed, soon.
+NOTE: The Ubuntu/Linux setup script is not idempotent and will break if not run
+from a fresh installation. Hopefully this will be changed, soon.
 
 To create a fresh install using Windows Subsystem for Linux and Ubuntu.
 
 - Download Ubuntu from the Windows Store if you haven't already.
-- If you have an existing WSL instance and want to get rid of it. Do this in your Window's Powershell:
+- If you have an existing WSL instance and want to get rid of it. Do this in
+  your Windows Powershell:
 
   #+begin_src powershell
   wsl --list
@@ -34,17 +37,26 @@ To create a fresh install using Windows Subsystem for Linux and Ubuntu.
   #+end_src
 
   (Replace "Ubuntu" with the name of the instance you want to get rid of.
-- Open Ubuntu again, it will install, then clone this repo into ".dotfiles" and run the setup script.
+
+- Open Ubuntu again, it will install, then clone this repo into ".dotfiles" and
+  run the setup script.
 
 ** MAC (OSX)
 
-The OSX install script is idempotent and can be really nice to work with. If you simply want to get your system in the desired end-state, run the setup script.
+The OSX install script is idempotent and can be really nice to work with. If you
+simply want to get your system in the desired end-state, run the setup script.
 
-This also enables really nice things as the config.env is sourced in both the setup_osx.sh and the zsh/zshrc (which is where the mac zshrc is currently located). So if you wanted to do something like upgrade your Java version from 17 -> 20, you would simply update the JAVA_VERSION variable in config.env, and then run the setup_osx.sh script. This would install the required java version, and then source your zshrc which references the version. Things just work! :D
+This also enables really nice things as the config.env is sourced in both the
+setup_osx.sh and the zsh/zshrc (which is where the mac zshrc is currently
+located). So if you wanted to do something like upgrade your Java version from
+17 -> 20, you would simply update the JAVA_VERSION variable in config.env, and
+then run the setup_osx.sh script. This would install the required java version,
+and then source your zshrc which references the version. Things just work! :D
 
 * Symlinks
 
-Symbolic links are created for configuration that is supposed to live in the home directory. Such as:
+Symbolic links are created for configuration that is supposed to live in the
+home directory. Such as:
 
 #+begin_src shell
 ln -s ~/.dotfiles/emacs/ ~/.emacs.d
@@ -56,13 +68,15 @@ ls -la ~ | grep .emacs.d
 ls -la
 #+end_src
 
-A utility function has been written to create symlinks handling a few of the edge-cases. It's found in 'bashutils.sh'.
+A utility function has been written to create symlinks handling a few of the
+edge-cases. It's found in 'bashutils.sh'.
 
 * Helpful Information
 
 ** Github Credentials
 
-The easiest way to store github credentials is to generate a classic token and then run the following in a repo:
+The easiest way to store github credentials is to generate a classic token and
+then run the following in a repo:
 
 #+begin_src shell
 git config --global user.email "email here"
@@ -73,9 +87,11 @@ $Username: <your username>
 $Password: <the access token>
 #+end_src
 
-The token will now be stored in plaintext in your root directory under .git-credentials
+The token will now be stored in plaintext in your root directory under
+.git-credentials
 
-Obviously this will be in plain text and is not recommened for important keys. Use with discretion.
+Obviously this will be in plain text and is not recommened for important
+keys. Use with discretion.
 
 ** plist files on OSX
 
@@ -91,5 +107,6 @@ plutil -convert xml1 ~/Library/Preferences/com.googlecode.iterm2.plist
 plutil -convert binary1 ~/Library/Preferences/com.googlecode.iterm2.plist
 #+end_src
 
-Any application using them can typically understand either format so we can store them as XML for easier readability.
+Any application using them can typically understand either format so we can
+store them as XML for easier readability.
 
