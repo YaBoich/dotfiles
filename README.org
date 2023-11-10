@@ -1,4 +1,5 @@
 #+title: Dotfiles and System Configuration
+#+author: Charlie Verwer
 
 * Summary
 
@@ -110,3 +111,13 @@ plutil -convert binary1 ~/Library/Preferences/com.googlecode.iterm2.plist
 Any application using them can typically understand either format so we can
 store them as XML for easier readability.
 
+** Installing from source
+
+In general, here's how I do it:
+- Clone to Downloads/ ($DOWNLOADS).
+- Make & Install.
+- Put the executable in bin or at least make a symlink from bin/ ($BIN).
+  - If it's installed to usr/local/bin then symlink.
+  - If it's made in its folder in $DOWNLOADS, move it. (No dependance on
+    $DOWNLOADS/ folder - should be able to delete it and things still work.
+- Then I just ensure bin ($BIN) is in my path (in zshrc).

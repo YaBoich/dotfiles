@@ -161,7 +161,7 @@ install_rust() {
     fi
 }
 
-# Zig from source
+# Zig from source (and Zls)
 install_zig() {
     stderr "Installing Zig and its developer tools..."
     check_env "ZIG_VERSION" "ZIG_COMMIT"
@@ -194,7 +194,7 @@ install_zig() {
 	cd $DOWNLOADS/zls
 
 	zig build -Doptimize=ReleaseSafe
-	ln -s "$DOWNLOADS/zls/zig-out/bin/zls" "$BIN/zls"
+	mv "$DOWNLOADS/zls/zig-out/bin/zls" "$BIN/zls"
 
 	cd $CONFIG
     fi
@@ -205,6 +205,7 @@ install_zig() {
 # ------------------------------------------------------------------------------------
 
 # Tree Sitter
+# Does not install an executable, rather libraries at /usr/local/lib/libtree-...
 install_tree_sitter() {
     stderr "Installing tree sitter"
 
@@ -232,7 +233,7 @@ install_tree_sitter_grammars() {
 	git clone https://github.com/casouri/tree-sitter-module.git $DOWNLOADS/tree-sitter-grammars
 	cd $DOWNLOADS/tree-sitter-grammars
 	JOBS=8 ./batch.sh
-	ln -s "$DOWNLOADS/tree-sitter-grammars/dist" "$BIN/tree-sitter-grammars"
+	mv "$DOWNLOADS/tree-sitter-grammars/dist" "$BIN/tree-sitter-grammars"
 	cd $CONFIG
     fi
 }
