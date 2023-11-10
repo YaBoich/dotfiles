@@ -45,7 +45,7 @@ install_program() {
         stderr "$program_name is already installed."
     else
         stderr "Installing $program_name..."
-	sudo apt install -y "$program_name"
+        sudo apt install -y "$program_name"
     fi
 }
 
