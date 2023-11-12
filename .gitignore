@@ -12,7 +12,8 @@
 # As defined in my Emacs configuration.
 emacs/runtime/
 
-# Config modules are literate org files that tangle into corresponding .el files.
+# lisp/    -> lisp config files.
+# modules/ -> literate org files that tangle into corresponding .el files.
 emacs/modules/*.el
 
 # Undo Tree files

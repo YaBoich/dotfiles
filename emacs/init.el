@@ -14,7 +14,14 @@
 ;; work with this config. See the README for instructions on building
 ;; Emacs from source.
 
+
+;; TODOs:
+;; - Enable company and flymake automatically for .el (and other) buffers.
+;; - Add flymake hotkeys such as flymake-show-buffer-diagnostics, or whatever.
+
 ;;; Code:
+(when (version< emacs-version "29.1")
+  (error "This requires Emacs 29.1 and above!"))
 
 (defgroup boich nil
   "Customization group for Boich Emacs settings."
@@ -29,11 +36,25 @@
 (setq fill-column boich/line-width)
 
 ;; ==============================================================================
-;; Load config modules
+;; Config Loading Functionality
 ;; ==============================================================================
+
+;; ------------------ Lisp Modules ----------------------------------------------
+(defcustom boich/lisp-dir (expand-file-name "lisp/" user-emacs-directory)
+  "Directory containing lisp config files."
+  :type 'directory
+  :group 'boich)
+
+(defun update-load-path ()
+  "Add lisp config to `load-path`."
+  (push boich/lisp-dir load-path))
+
+(update-load-path)
+
+;; ------------------ Literate Org Modules --------------------------------------
 (defcustom boich/modules-dir (expand-file-name "modules/" user-emacs-directory)
   "Directory containing configuration modules."
-  :type 'string
+  :type 'directory
   :group 'boich)
 
 (require 'org)
@@ -49,6 +70,14 @@ the file, and FILE is the name of the org file without the '.org' extension."
     (if (file-exists-p fullpath)
         (org-babel-load-file fullpath)
       (error "ERROR: Failed to load external module (\"%s\" \"%s\")" DIR FILE))))
+
+
+;; ==============================================================================
+;; Config Loading
+;; ==============================================================================
+
+;; ------------------ Lisp Modules ----------------------------------------------
+(require 'init-paths)
 
 ;; ------------------ Core Modules ----------------------------------------------
 (boich/load-module "base")        ;; Runtime paths, Package management, Vim keybindings, Interface.

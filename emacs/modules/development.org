@@ -63,7 +63,34 @@ I guess I'll just try run "eglot" in a code buffer.
 * VTerm
 
 #+begin_src emacs-lisp
-  (use-package vterm)
+  (defcustom boich/use-vterm t
+    "Indicates whether or not you want to use vterm. Doesn't work well
+    on Windows and need to install on Unix. Automatically sets to
+    false via a prompt if answered 'no'."
+    :type 'boolean
+    :group 'boich)
+
+  (defun prompt-for-vterm-installation ()
+    "Prompt the user to install vterm."
+    (when (and boich/use-vterm (not (featurep 'vterm)))
+      (if (yes-or-no-p "vterm is not installed. Install vterm?")
+          (progn
+            (package-refresh-contents)
+            (package-install 'vterm)
+            (customize-save-variable 'boich/use-vterm t))
+        ;; Change to nil if false so this doesn't prompt every time.
+        ;; This persists the change to the custom variable.
+        (customize-save-variable 'boich/use-vterm nil))))
+
+  (message "Value of boich/use-vterm: %s" boich/use-vterm)
+
+
+  ;; Check if vterm is installed/enabled and prompt the user
+  (prompt-for-vterm-installation)
+
+  ;; Load vterm if the user has agreed to use it
+  (when boich/use-vterm
+    (use-package vterm))
 #+end_src
 
 * Automatically pair parentheses
