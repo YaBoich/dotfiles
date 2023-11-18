@@ -187,3 +187,32 @@ you adjust your window width/height.
 | -> (In session)    | k       | Increase Height (vim style)                     |
 | -> (In session)    | l       | Increase Width (vim style)                      |
 |--------------------+---------+-------------------------------------------------|
+
+* Dired Customizations
+
+We can adjust dired to change sorting order, what it displays, etc.
+
+This should get it to show directories first, then files (all sorted lexographically).
+
+The function `boich/toggle-dired-dotfiles will whether or not to display
+dotfiles. It's bound to =C->= (C-S-.)
+
+=(= is also a nice keybind in dired. It'll change the display mode.
+
+#+begin_src emacs-lisp
+  (setq dired-listing-switches "-al --group-directories-first")
+#+end_src
+
+If you want some help with dired, go into a dired buffer and hit up a `C-h m`.
+
+#+begin_src emacs-lisp
+  (defun boich/toggle-dired-dotfiles ()
+    "Toggle showing dotfiles in Dired."
+    (interactive)
+    (if (string-match-p "-a" dired-actual-switches)
+        (setq-local dired-actual-switches (replace-regexp-in-string "-a" "" dired-actual-switches))
+      (setq-local dired-actual-switches (concat "-a" dired-actual-switches)))
+    (revert-buffer))
+
+  (define-key dired-mode-map (kbd "C->") 'boich/toggle-dired-dotfiles)
+#+end_src

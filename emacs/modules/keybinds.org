@@ -102,6 +102,7 @@ Avy instant navigation:
    "o" '(:ignore t :which-key "org")
    "oa" '(org-agenda :which-key "agenda")
    "of" '(org-refile :which-key "refile")
+   "od" '((lambda () (interactive) (dired org-directory)) :which-key "goto dir")
    "oc" '(:ignore t :which-key "clock")
    "op" '(org-capture :which-key "capture")
    "oci" '(org-clock-in :which-key "clock in")
@@ -114,6 +115,8 @@ Avy instant navigation:
    "orc" '(org-roam-capture :which-key "capture")
    "ord" '(org-roam-dailies-capture-today :which-key "daily"))
 #+end_src
+
+#+RESULTS:
 
 |----------+----------------------------------------------|
 | Keybind  | Action                                       |

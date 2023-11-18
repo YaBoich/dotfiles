@@ -184,6 +184,12 @@ Custom font settings per face type.
 =describe-face= will give you info of the face at the cursor.
 Then you can customize it and it'll list all the options.
 
+If you're having issues where Emacs is asking you for a Font directory on
+startup - it is downloading the below fonts there (such as Nerd-Icons and
+All-the-Icons). You're likely on Windows and need to manually install those
+fonts. Go to whatever folder you chose and double click the main font file
+(likely `all-the-icons.ttf` or `NFM.ttf`) to install it.
+
 #+begin_src emacs-lisp
   (defcustom boich/default-font-size 130
     "Default font size."
