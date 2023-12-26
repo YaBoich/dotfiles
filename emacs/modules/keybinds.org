@@ -73,24 +73,44 @@ Avy instant navigation:
 
 #+begin_src emacs-lisp
   (defhydra hydra-text-scale (:timeout 4)
-            "scale text"
-            ("j" (text-scale-increase 0.2) "in")
-            ("k" (text-scale-decrease 0.2) "out")
-            ("q" nil "finished" :exit t))
+    "scale text"
+    ("j" (text-scale-increase 0.2) "in")
+    ("k" (text-scale-decrease 0.2) "out")
+    ("q" nil "finished" :exit t))
 
   (defhydra hydra-adjust-window (:timeout 4)
-            "grow or shrink the current evil window"
-            ("h" evil-window-decrease-width "decrease width")
-            ("j" evil-window-decrease-height "decrease height")
-            ("k" evil-window-increase-height "increase width")
-            ("l" evil-window-increase-width "increase width")
-            ("q" nil "finished" :exit t))
+    "grow or shrink the current evil window"
+    ("h" evil-window-decrease-width "decrease width")
+    ("j" evil-window-decrease-height "decrease height")
+    ("k" evil-window-increase-height "increase width")
+    ("l" evil-window-increase-width "increase width")
+    ("q" nil "finished" :exit t))
+
+  (defun boich/focus-on ()
+    "Removes all distractions from the screen such as line numbers and
+     the modeline for this buffer."
+    (interactive)
+    (display-line-numbers-mode 0)
+    (setq mode-line-format nil))
+
+  (defvar boich/default-mode-line-format mode-line-format)
+
+  (defun boich/focus-off ()
+    "Reverts the changes made by the 'boich/focus-on' function, 
+     restoring line numbers and the mode line for this buffer."
+    (interactive)
+    (display-line-numbers-mode 1)
+    (setq mode-line-format boich/default-mode-line-format))
 
   (boich/leader-keys
-   "t" '(:ignore t :which-key "toggles")
-   "tt" '(counsel-load-theme :which-key "choose theme")
-   "ts" '(hydra-text-scale/body :which-key "scale-text")
-   "tw" '(hydra-adjust-window/body :which-key "adjust-window"))
+    "t" '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme")
+    "ts" '(hydra-text-scale/body :which-key "scale-text")
+    "tw" '(hydra-adjust-window/body :which-key "adjust-window")
+    "tf" '(:ignore t :which-key "focus")
+    "tfj" '(boich/focus-on :which-key "on")
+    "tfk" '(boich/focus-off :which-key "off"))
+
 #+end_src
 
 #+RESULTS:
@@ -113,7 +133,9 @@ Avy instant navigation:
    "orb" '(org-roam-buffer-toggle :which-key "buffer")
    "ori" '(org-roam-node-insert :which-key "insert")
    "orc" '(org-roam-capture :which-key "capture")
-   "ord" '(org-roam-dailies-capture-today :which-key "daily"))
+   "ord" '(org-roam-dailies-capture-today :which-key "daily")
+   "orv" '(org-roam-ui-mode :which-key "visualize")
+   )
 #+end_src
 
 #+RESULTS:
@@ -205,3 +227,14 @@ Avy instant navigation:
     "cft" '(eglot-find-typeDefinition :which-key "type definition")
     )
 #+end_src
+
+* Search [s]
+
+#+begin_src emacs-lisp
+  (boich/leader-keys
+    "s" '(:ignore t :which-key "search")
+    "sw" '(boich/work-search :which-key "work (bing internal)")
+    )
+#+end_src
+
+

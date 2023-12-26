@@ -36,6 +36,14 @@
   :type 'file
   :group 'boich/paths)
 (setq custom-file boich/custom-file)
+
+;; Create custom file (and directory if required) if it doesn't exist
+(let ((dir (file-name-directory custom-file)))
+  (unless (file-exists-p dir)
+    (make-directory dir t)))
+(unless (file-exists-p custom-file)
+  (with-temp-file custom-file
+    (insert "")))
 (load custom-file)
 
 (defcustom boich/auto-save-dir (expand-file-name "auto-saves/" boich/runtime-dir)

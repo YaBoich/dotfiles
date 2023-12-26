@@ -101,5 +101,8 @@ the file, and FILE is the name of the org file without the '.org' extension."
 ;; ------------------ External Modules ------------------------------------------
 (boich/load-external "~/Org/" "README") ;; My Org Mode setup.
 
+;; ------------------ Misc ------------------------------------------------------
+(require 'msft)
+
 ;; TODO figure out why this keeps re-setting
 (setq fill-column boich/line-width)

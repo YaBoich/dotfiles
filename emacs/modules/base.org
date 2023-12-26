@@ -137,7 +137,7 @@ If the right side of doom modeline is cut off: [[https://github.com/doomemacs/do
     :prefix "boich-interface/"
     :group 'boich)
 
-  ;; (setq inhibit-startup-message t)
+  (setq inhibit-startup-message t)
   (setq visible-bell t)   ; Rather than the constant pinging noise
   (scroll-bar-mode -1)    ; Disable the visible scrollbar
   (tool-bar-mode -1)      ; Disable the toolbar
