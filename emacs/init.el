@@ -18,6 +18,8 @@
 ;; TODOs:
 ;; - Enable company and flymake automatically for .el (and other) buffers.
 ;; - Add flymake hotkeys such as flymake-show-buffer-diagnostics, or whatever.
+;; - Add some webdev stuff. Maybe go through some htmx tutorial and see what you need.
+;; - I'll need some csharp stuff for work.
 
 ;;; Code:
 (when (version< emacs-version "29.1")
@@ -34,6 +36,11 @@
   :type 'int
   :group 'boich)
 (setq fill-column boich/line-width)
+
+(set-language-environment "UTF-8")
+(prefer-coding-system 'utf-8)
+(set-language-environment'utf-8)
+(set-selection-coding-system 'utf-8)
 
 ;; ==============================================================================
 ;; Config Loading Functionality
