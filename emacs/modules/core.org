@@ -112,6 +112,9 @@ Project file searching and navigation.
 
 #+begin_src emacs-lisp
   (use-package projectile)
+
+  ;; Start so things work
+  (projectile-mode)
 #+end_src
 
 * Desktop Save Mode

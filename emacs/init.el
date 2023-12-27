@@ -20,6 +20,7 @@
 ;; - Add flymake hotkeys such as flymake-show-buffer-diagnostics, or whatever.
 ;; - Add some webdev stuff. Maybe go through some htmx tutorial and see what you need.
 ;; - I'll need some csharp stuff for work.
+;; - See under "misc" heading for some todos.
 
 ;;; Code:
 (when (version< emacs-version "29.1")
@@ -102,7 +103,11 @@ the file, and FILE is the name of the org file without the '.org' extension."
 (boich/load-external "~/Org/" "README") ;; My Org Mode setup.
 
 ;; ------------------ Misc ------------------------------------------------------
+;; TODO figure out how to not use this on different setups.
+;; Like a env.json or something - whatever is best.
+;; Also get a package that highlights and lists TODOs in the current buffer or project or something.
 (require 'msft)
+(require 'windows)
 
 ;; TODO figure out why this keeps re-setting
 (setq fill-column boich/line-width)

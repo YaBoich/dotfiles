@@ -120,5 +120,12 @@
   :group 'boich/paths)
 (setq org-persist-directory boich/org-persist-dir)
 
+(defcustom boich/projectile-cache-dir (expand-file-name "projectile/" boich/runtime-dir)
+  "Projectile cache."
+  :type 'directory
+  :group 'boich/paths)
+(setq projectile-cache-file (expand-file-name "projectile.cache" boich/projectile-cache-dir))
+(setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" boich/projectile-cache-dir))
+
 (provide 'init-paths)
 ;;; init-paths.el ends here
