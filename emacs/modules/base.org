@@ -149,8 +149,14 @@ If the right side of doom modeline is cut off: [[https://github.com/doomemacs/do
   ;; (pixel-scroll-mode 0)
   ;; (setq scroll-step 1)
 
-  (use-package doom-themes
-    :config (load-theme 'doom-gruvbox t)) ;; or doom-one
+  ;; THEMES:
+  ;; - Using my own theme for now - don't need a million options.
+  ;;
+  ;; (use-package doom-themes
+  ;;  :config (load-theme 'doom-gruvbox t)) ;; or doom-one
+  (add-to-list 'custom-theme-load-path (expand-file-name "themes/" user-emacs-directory))
+  (load-theme 'doom-gruvbox t)
+
 
   (use-package doom-modeline
     :ensure t
