@@ -11,6 +11,7 @@
 # Single folder for all Emacs runtime/generated files and folders.
 # As defined in my Emacs configuration.
 emacs/runtime/
+emacs/server/
 
 # lisp/    -> lisp config files.
 # modules/ -> literate org files that tangle into corresponding .el files.
