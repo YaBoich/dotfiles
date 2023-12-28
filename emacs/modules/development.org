@@ -45,6 +45,7 @@ TODO
 On-the-fly syntax checking. I think this comes pre-installed with Emacs 29 and above.
 
 #+begin_src emacs-lisp
+  (use-package flycheck)
   (global-flycheck-mode)
 #+end_src
 
