@@ -108,6 +108,7 @@ the file, and FILE is the name of the org file without the '.org' extension."
 ;; Also get a package that highlights and lists TODOs in the current buffer or project or something.
 (require 'msft)
 (require 'windows)
+(require 'powershell)
 
 ;; TODO figure out why this keeps re-setting
 (setq fill-column boich/line-width)

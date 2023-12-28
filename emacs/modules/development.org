@@ -8,8 +8,11 @@ https://www.youtube.com/watch?v=iAjIoKqbmg8
 * Company Completion
 
 #+begin_src emacs-lisp
-  (use-package company)
-#+end_src
+  (use-package company
+    :ensure t
+    :config
+    (add-hook 'after-init-hook 'global-company-mode))
+    #+end_src
 
 * Treesitter
 
@@ -36,6 +39,14 @@ Also something called `treesit-install-language-grammar' exists?
 * Flymake
 
 TODO
+
+* Flycheck
+
+On-the-fly syntax checking. I think this comes pre-installed with Emacs 29 and above.
+
+#+begin_src emacs-lisp
+  (global-flycheck-mode)
+#+end_src
 
 * Eldoc
 
