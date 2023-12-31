@@ -14,11 +14,10 @@
 ;; work with this config. See the README for instructions on building
 ;; Emacs from source.
 
-
 ;; TODOs:
 ;; - Enable company and flymake automatically for .el (and other) buffers.
 ;; - Add flymake hotkeys such as flymake-show-buffer-diagnostics, or whatever.
-;; - Add some webdev stuff. Maybe go through some htmx tutorial and see what you need.
+;; - Add some webdev stuff, maybe go through some htmx tutorial and see what you need.
 ;; - I'll need some csharp stuff for work.
 ;; - See under "misc" heading for some todos.
 
@@ -37,6 +36,7 @@
   :type 'int
   :group 'boich)
 (setq fill-column boich/line-width)
+(setq-default fill-column boich/line-width)
 
 (set-language-environment "UTF-8")
 (prefer-coding-system 'utf-8)
@@ -98,6 +98,7 @@ the file, and FILE is the name of the org file without the '.org' extension."
 
 ;; ------------------ Language Specifics ----------------------------------------
 (boich/load-module "zig")         ;; Really looking forward to learning this one!
+(boich/load-module "csharp")      ;; Please save me from Visual Studio!
 
 ;; ------------------ External Modules ------------------------------------------
 (boich/load-external "~/Org/" "README") ;; My Org Mode setup.
@@ -111,4 +112,7 @@ the file, and FILE is the name of the org file without the '.org' extension."
 (require 'powershell)
 
 ;; TODO figure out why this keeps re-setting
-(setq fill-column boich/line-width)
+;; - I think the set default thing above fixed this.
+;; (setq fill-column boich/line-width)
+
+;;; init.el ends here

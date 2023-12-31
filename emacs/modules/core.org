@@ -111,10 +111,20 @@ amazing. Enjoy that shit and feel free to change the hotkey.
 Project file searching and navigation.
 
 #+begin_src emacs-lisp
-  (use-package projectile)
+  (use-package projectile
+    :diminish projectile-mode
+    :config (projectile-mode)
+    :custom ((projectile-completion-system 'ivy))
+    :bind-keymap
+    ("C-c p" . projectile-command-map))
+;;     :init
+;;     (when (file-directory-p "~/Projects/")
+;;       (setq projectile-project-search-path '("~/Projects/")))
+;;     (setq projectile-switch-project-action #'projectile-dired))
 
-  ;; Start so things work
-  (projectile-mode)
+  ;; Install counsel-projectile
+  (use-package counsel-projectile
+    :config (counsel-projectile-mode))
 #+end_src
 
 * Desktop Save Mode

@@ -1,0 +1,51 @@
+#+title: C#
+#+author: Charlie Verwer
+#+date: 21/11/2023
+
+I suppose you have dotnet 8+ and some other stuff installed. Honestly who knows
+how this stuff works...
+
+I mostly just want to browse things in Emacs - I think it's basically mandatory
+to use Visual Studio to work with C#...
+
+Going to try use LSP mode because holy dam eglot is making me upset.
+- Yeah this just works. Eglot can suck a fat one...
+
+#+begin_src emacs-lisp
+    (defun boich/csharp-init ()
+      (company-mode 1)    ;; Completion
+      (flycheck-mode)     ;; ??
+      ;; (tree-sitter-mode)  ;; Start tree-sitter for structural highlighting
+      (flymake-mode 1))   ;; Start flymake for on-the-fly syntax checking
+
+    (add-hook 'csharp-mode-hook 'yas-minor-mode)
+    (add-hook 'csharp-mode-hook 'lsp-deferred)
+    (add-hook 'csharp-mode-hook 'boich/check-lsp-server)
+    (add-hook 'csharp-mode-hook 'boich/csharp-init)
+
+    ;; Install fill-column-indicator (this seems to lag like crazy?)
+    ;; TODO - I once profiled this and it lagged like crazy. Check if it happens again.
+    (use-package fill-column-indicator
+      :ensure t
+      :config
+      (setq fci-rule-column 80)
+      (setq fci-rule-width 1)
+      (setq fci-rule-color "gray50"))
+
+    ;; If you want to use a specific RGB color, you can use the rgb.txt file that
+    ;; comes with X11 as a reference for color names that Emacs recognizes.
+
+    (defun boich/turn-on-fci-mode ()
+      "Turn on Fill Column Indicator mode."
+      (interactive)
+      (when (derived-mode-p 'prog-mode)
+        (fci-mode 1)))
+
+    (add-hook 'prog-mode-hook 'boich/turn-on-fci-mode)
+#+end_src
+
+* Links, Notes & References
+
+- [[https://joshwolfe.ca/posts/emacs-csharp-development/][This dude's writeup was quite helpful]]
+- ChatGPT helped me write the lsp-mode config that went into development module.
+- Eglot is a lousy piece of garbage.

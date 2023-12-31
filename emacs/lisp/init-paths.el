@@ -96,6 +96,20 @@
 (with-eval-after-load 'treemacs
   (setq treemacs-persist-file boich/treemacs-file))
 
+(defcustom boich/lsp-session-file (expand-file-name ".lsp-session-v1" boich/runtime-dir)
+  "LSP Session file location."
+  :type 'file
+  :group 'boich/paths)
+(with-eval-after-load 'lsp-mode
+  (setq lsp-session-file boich/lsp-session-file))
+
+(defcustom boich/lsp-server-install-dir (expand-file-name "lsp/" boich/runtime-dir)
+  "LSP Server install directory."
+  :type 'directory
+  :group 'boich/paths)
+(with-eval-after-load 'lsp-mode
+  (setq lsp-server-install-dir boich/lsp-server-install-dir))
+
 (defcustom boich/savehist-file (expand-file-name "savehist" boich/runtime-dir)
   "Savehist file location (keeping track of minibuffer history)."
   :type 'file
@@ -120,10 +134,15 @@
   :group 'boich/paths)
 (setq org-persist-directory boich/org-persist-dir)
 
+;; Need to create directory otherwise OS will complain about not being
+;; able to write to the files
 (defcustom boich/projectile-cache-dir (expand-file-name "projectile/" boich/runtime-dir)
   "Projectile cache."
   :type 'directory
   :group 'boich/paths)
+(let ((dir boich/projectile-cache-dir))
+  (unless (file-exists-p dir)
+    (make-directory dir t)))
 (setq projectile-cache-file (expand-file-name "projectile.cache" boich/projectile-cache-dir))
 (setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" boich/projectile-cache-dir))
 

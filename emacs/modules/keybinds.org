@@ -47,6 +47,27 @@ Avy instant navigation:
   (define-key evil-motion-state-map (kbd "P") #'avy-goto-line)
 #+end_src
 
+* Multiple Cursors
+
+This is awesome. Use in combination with registers for a great time!
+
+Also - don't use as an excuse to not master vim macros - they are MORE powerful
+than multiple cursors. Don't forget that!
+
+#+begin_src emacs-lisp
+  (use-package evil-mc
+    :ensure t
+    :init
+    (global-evil-mc-mode 1)
+    :config
+    (define-key evil-normal-state-map (kbd "C-f") 'evil-mc-make-and-goto-next-match)
+    (define-key evil-visual-state-map (kbd "C-f") 'evil-mc-make-and-goto-next-match)
+    (define-key evil-normal-state-map (kbd "C-S-f") 'evil-mc-skip-and-goto-next-match)
+    (define-key evil-visual-state-map (kbd "C-S-f") 'evil-mc-skip-and-goto-next-match)
+    (define-key evil-normal-state-map (kbd "M-f") 'evil-mc-undo-all-cursors)
+    (define-key evil-visual-state-map (kbd "M-f") 'evil-mc-undo-all-cursors))
+#+end_src
+
 * Files & Buffers [f]
 
 #+begin_src emacs-lisp
@@ -61,7 +82,9 @@ Avy instant navigation:
    "ff" '(projectile--find-file :which-key "find file")
    "fd" '(projectile-find-dir :which-key "find dir")
    "fh" '(dired-jump :which-key "dired here")
-   "fp" '(projectile-command-map :which-key "projectile command map"))
+   "fp" '(counsel-projectile :which-key "search in project")
+   "fP" '(projectile-switch-project :which-key "switch project")
+   "fm" '(projectile-command-map :which-key "projectile command map"))
 
   ;; Allow fullscreening in OSX
   (global-set-key (kbd "M-s-f") 'toggle-frame-fullscreen)
@@ -216,16 +239,17 @@ Avy instant navigation:
     "cP" '(treemacs-add-and-display-current-project :which-key "project explorer (additive)")
     ;; "cc" '('completion-at-point :which-key "completion at point")
     "cc" '(counsel-company :which-key "completion")
-    "ca" '(eglot-code-actions :which-key "actions")
-    "cr" '(eglot-rename :which-key "rename symbol")
+    "ca" '(eglot-code-actions :which-key "actions") ;; TODO what is the lsp-equivalent of this?
+    "cr" '(lsp-rename :which-key "rename symbol")
+    "cd" '(lsp-ui-doc-show :which-key "show docs")
     "cg" '(diff-hl-mode :which-key "toggle git diff indicator")
     "cG" '(diff-hl-margin-mode :which-key "toggle git margin indicator")
     "cf" '(:ignore t :which-key "find")
     "cfD" '(xref-find-definitions :which-key "definitions (xref: M-.)")
     "cfR" '(xref-find-references :which-key "references (xref: M-?)")
-    "cfd" '(eglot-find-declaration :which-key "declaration")
-    "cfi" '(eglot-find-implementation :which-key "implementation")
-    "cft" '(eglot-find-typeDefinition :which-key "type definition")
+    "cfd" '(lsp-ui-peek-find-definitions :which-key "declaration")
+    "cfi" '(lsp-ui-peek-find-implementation :which-key "implementation")
+    "cft" '(lsp-find-type-definition :which-key "type definition")
     )
 #+end_src
 

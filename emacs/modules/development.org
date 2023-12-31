@@ -11,6 +11,8 @@ https://www.youtube.com/watch?v=iAjIoKqbmg8
   (use-package company
     :ensure t
     :config
+    (setq company-idle-delay 0.2
+          company-minimum-prefix-length 1)
     (add-hook 'after-init-hook 'global-company-mode))
     #+end_src
 
@@ -46,6 +48,7 @@ On-the-fly syntax checking. I think this comes pre-installed with Emacs 29 and a
 
 #+begin_src emacs-lisp
   (use-package flycheck)
+  ;;(add-hook 'prog-mode-hook 'flycheck-mode)
   (global-flycheck-mode)
 #+end_src
 
@@ -63,6 +66,9 @@ Project file explorer tree.
 
 * Eglot
 
+A note: Eglot sucks big fat donkey balls... Whereas LSP-mode just works. So I'm
+going to use that!
+
 Going through to docs: https://github.com/joaotavora/eglot
 
 As of Emacs 29 (The version I'm using) this is built in.
@@ -71,6 +77,81 @@ Adding servers is done via the `eglot-server-programs' variable. Which doesn't
 seem to exist! :D
 
 I guess I'll just try run "eglot" in a code buffer.
+
+* LSP Mode
+
+Like Eglot, but not dogshit...
+
+#+begin_src emacs-lisp
+  ;; Install and configure lsp-mode as client for Language Server
+  ;; Protocol (which is supported by csharp-language-server-protocol)
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred))
+    ;; :hook (prog-mode . lsp-deferred))
+
+  ;; Install and configure lsp-ui
+  (use-package lsp-ui
+    :commands lsp-ui-mode
+    :custom
+    (lsp-ui-doc-enable nil))
+
+  ;; Optional if you want lsp to manage your project packages
+  (use-package lsp-treemacs)
+#+end_src
+
+** For individual languages
+
+This function can be called for whatever programming mode you'd like to install
+an LSP server for. For example:
+
+=(add-hook 'csharp-mode-hook 'lsp-deferred)=
+=(add-hook 'csharp-mode-hook 'boich/check-lsp-server)=
+
+#+begin_src emacs-lisp
+  (defun boich/check-lsp-server ()
+    "Check if the LSP server is installed. If not, install it."
+    (unless (file-exists-p lsp-server-install-dir)
+      (lsp-install-server nil)))
+#+end_src
+
+* YAS Snippets
+
+These work well with lsp-mode
+
+You need to install your own snippets, such as:
+- yasnippet-csharp: This is a collection of C# snippets for YASnippet with
+  automatic namespace and classname insertion. You can find it on GitHub.
+- yasnippet-snippets: This is the official collection of snippets for YASnippet,
+  which includes snippets for many languages. If you've installed
+  YASnippet-snippets, you should already have access to these.
+
+#+begin_src emacs-lisp
+  (use-package yasnippet)
+  (use-package yasnippet-snippets)
+;; (use-package yasnippet
+;;   :ensure t
+;;   :init
+;;   (yas-global-mode 1))
+;;
+;; (use-package yasnippet-snippets
+;;   :ensure t)
+;;
+;; ;; Optional: Use a custom directory for your snippets
+;; (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+#+end_src
+
+Could enable for all all modes:
+```
+    :config
+    (yas-global-mode 1))
+```
+
+Or for programming modes only:
+```
+    (yas-reload-all)
+    (add-hook 'csharp-mode-map 'yas-minor-mode)
+    (add-hook 'prog-mode-hook 'yas-minor-mode)
+```
 
 * VTerm
 
@@ -197,6 +278,19 @@ You can enable this by running =(whitespace-mode)=. It'll show those zero-width 
 ** Help
 
 Below are some of the most common/useful keybinds for the main features of Magit.
+
+*** Staging individual chunks/lines of code
+
+So say you have 10 lines of code changed in the same chunk in Magit, you want to
+stage the first 5 and stash the last 5. Here's what you do.
+
+- Using a mark in emacs, select the region you want to stage. Then hit "s". This
+  is not the same as selecting with "v" in vim/evil. The command for this is
+  `set-mark-command', bound to "C-@" in this setup for some reason.
+- Now you can hit z to stash the unstaged changes. Pretty cool...
+
+TODO - if you ever see this again, learn a bit about marks in emacs and what
+other cool things they can be used for.
 
 *** magit-status (SPC g s)
 

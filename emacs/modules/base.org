@@ -114,6 +114,8 @@ This makes *vi#* and *va#* select in and around org source blocks, respectively.
 
 ** Help
 
+*** Keybinds
+
 | Keybind     | Action                                                        |
 |-------------+---------------------------------------------------------------|
 | C-w H/J/K/L | Move window                                                   |
@@ -124,6 +126,19 @@ This makes *vi#* and *va#* select in and around org source blocks, respectively.
 | va#         | Select around org src block                                   |
 | C-M-\       | Indent-region (select src block 'vi#' then auto indent C-M-\) |
 |-------------+---------------------------------------------------------------|
+
+*** Delete without copying to the clipboard
+Yo about deleting! The default Emacs binding for M-d (alt d) is to kill-word. If
+you select in vim, then M-d - it deletes the selection without overiding your clipboard.
+(So basically I was trying to rebind over something that already existed. Albeit
+without the ability to work it into a motion..)
+
+Registers. I've tried setting a binding, like M-d to "_d, which would delete
+into the null register. But it aint working.
+
+So... Just get used to the idea. Do something like "1d to delete into the 1st
+register. Then delete all over the place and when you replace something, do it
+with "1p - easy enough.
 
 * Interface
 
@@ -197,7 +212,7 @@ fonts. Go to whatever folder you chose and double click the main font file
 (likely `all-the-icons.ttf` or `NFM.ttf`) to install it.
 
 #+begin_src emacs-lisp
-  (defcustom boich/default-font-size 130
+  (defcustom boich/default-font-size 120
     "Default font size."
     :type 'number
     :group 'boich/interface)
@@ -208,14 +223,62 @@ fonts. Go to whatever folder you chose and double click the main font file
       (set-face-attribute face nil :font font :height size :weight (or weight 'medium))
       t))
 
-  (unless (boich/set-font-face 'default "Fira Code" boich/default-font-size)
-    (message "Warning: Font 'Fira Code' is not available."))
+  (defun boich/set-regular-font ()
+    "Set the regular font."
+    (interactive)
+    (unless (boich/set-font-face 'default "Fira Code" boich/default-font-size)
+      (message "Warning: Font 'Fira Code' is not available."))
+    (unless (boich/set-font-face 'fixed-pitch "Fira Code" boich/default-font-size)
+      (message "Warning: Font 'Fira Code' is not available for fixed-pitch."))
+    (unless (boich/set-font-face 'variable-pitch "Cantarell" boich/default-font-size 'regular)
+      (message "Warning: Font 'Cantarell' is not available for variable-pitch."))
+    )
+  (boich/set-regular-font)
 
-  (unless (boich/set-font-face 'fixed-pitch "Fira Code" boich/default-font-size)
-    (message "Warning: Font 'Fira Code' is not available for fixed-pitch."))
+  ;; ============================================================================
+  ;; Custom font settings for programming buffers
+  ;;
+  ;; Trying to get this working nicely and automatically per buffer was a
+  ;; nightmare. So I'm just providing the functionality and I'll probably add a
+  ;; toggle hotkey.
+  ;; ============================================================================
 
-  (unless (boich/set-font-face 'variable-pitch "Cantarell" boich/default-font-size 'regular)
-    (message "Warning: Font 'Cantarell' is not available for variable-pitch."))
+  (defcustom boich/programming-font-size 100
+    "Programming font size."
+    :type 'number
+    :group 'boich/interface)
+
+  (defcustom boich/programming-font "Cascadia Mono"
+    "Programming font."
+    :type 'string
+    :group 'boich/interface)
+
+  (defun boich/set-programming-font ()
+    "Set the font for programming buffers."
+    (interactive)
+    (boich/set-font-face 'default boich/programming-font boich/programming-font-size))
+
+#+end_src
+
+This looks promising for updating fonts without a restart:
+
+#+begin_src emacs-lispy
+(defun boich/update-programming-font-face ()
+  "Update the programming font face to use the current value of `boich/programming-font-size`."
+  (set-face-attribute 'boich/programming-font-face nil :height boich/programming-font-size))
+
+(defcustom boich/programming-font-size 100
+  "Programming font size."
+  :type 'number
+  :set (lambda (symbol value)
+         (set-default symbol value)
+         (boich/update-programming-font-face))
+  :group 'boich/interface)
+
+(defface boich/programming-font-face
+  '((t :family "Cascadia Mono"))
+  "Face for programming buffers.")
+
 #+end_src
 
 ** Icons
