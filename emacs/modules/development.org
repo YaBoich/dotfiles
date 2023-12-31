@@ -292,6 +292,16 @@ stage the first 5 and stash the last 5. Here's what you do.
 TODO - if you ever see this again, learn a bit about marks in emacs and what
 other cool things they can be used for.
 
+*** Staging chunks/lines of an untracked file
+
+Since an untracked file doesn't show up in the "Unstaged changes" section. You
+can't use the above method. Instead, what you need to do is to use the
+"--intent-to-add" option (default hotkey in this setup is "I" -
+`evil-collection-magit-stage-untracked-file-with-intent')
+
+Now it will show as a new file in "Staged changes", and its diff will be in
+"Unstaged changes". This is very cool.
+
 *** magit-status (SPC g s)
 
 This is the primary Magit interface, where you can see the status of your repository.
