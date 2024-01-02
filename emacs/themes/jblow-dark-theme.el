@@ -4,7 +4,7 @@
 
 (custom-theme-set-faces
  'jblow-dark
- '(default ((t (:foreground "#d3b58d" :background "#041818"))))
+ '(default ((t (:foreground "#d3b58d" :background "#062626"))))
  '(custom-group-tag-face ((t (:underline t :foreground "lightblue"))))
  '(custom-variable-tag-face ((t (:underline t :foreground "lightblue"))))
  '(font-lock-builtin-face ((t nil)))

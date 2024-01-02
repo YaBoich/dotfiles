@@ -49,12 +49,12 @@
 
 ;; ------------------ Lisp Modules ----------------------------------------------
 (defcustom boich/lisp-dir (expand-file-name "lisp/" user-emacs-directory)
-  "Directory containing lisp config files."
+  "Directory containing Lisp config files."
   :type 'directory
   :group 'boich)
 
 (defun update-load-path ()
-  "Add lisp config to `load-path`."
+  "Add Lisp config to `load-path`."
   (push boich/lisp-dir load-path))
 
 (update-load-path)
@@ -72,8 +72,9 @@
    (expand-file-name (concat MODULE ".org") boich/modules-dir)))
 
 (defun boich/load-external (DIR FILE)
-  "Load an external org file as literate config. DIR is the directory containing
-the file, and FILE is the name of the org file without the '.org' extension."
+  "Load an external org file as literate config.
+DIR is the directory containing the file, and FILE is the name of
+the org file without the '.org' extension."
   (let ((fullpath (expand-file-name (concat FILE ".org") DIR)))
     (if (file-exists-p fullpath)
         (org-babel-load-file fullpath)
@@ -88,7 +89,8 @@ the file, and FILE is the name of the org file without the '.org' extension."
 (require 'init-paths)
 
 ;; ------------------ Core Modules ----------------------------------------------
-(boich/load-module "base")        ;; Runtime paths, Package management, Vim keybindings, Interface.
+(boich/load-module "base")        ;; Package management, Vim keybindings.
+(boich/load-module "interface")   ;; Fonts, Themes, Modeline and other visuals.
 (boich/load-module "core")        ;; Completion, File & Project Navigation, Helpful features.
 (boich/load-module "org")         ;; Core Org Setup, Ricing, Babel, Roam.
 (boich/load-module "development") ;; Company completions, Git.

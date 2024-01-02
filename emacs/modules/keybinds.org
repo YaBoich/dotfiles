@@ -114,28 +114,16 @@ than multiple cursors. Don't forget that!
     "change font"
     ("r" (boich/set-regular-font) "regular")
     ("p" (boich/set-programming-font) "programming")
+    ("j" (boich/set-jblow-font-1) "Jblow (1)")
+    ("J" (boich/set-jblow-font-2) "Jblow (2)")
     ("q" nil "finished" :exit t))
-
-  (defun boich/focus-on ()
-    "Removes all distractions from the screen such as line numbers and
-     the modeline for this buffer."
-    (interactive)
-    (display-line-numbers-mode 0)
-    (setq mode-line-format nil))
-
-  (defvar boich/default-mode-line-format mode-line-format)
-
-  (defun boich/focus-off ()
-    "Reverts the changes made by the 'boich/focus-on' function, 
-     restoring line numbers and the mode line for this buffer."
-    (interactive)
-    (display-line-numbers-mode 1)
-    (setq mode-line-format boich/default-mode-line-format))
 
   (defhydra hydra-change-visual (:timeout 4)
     "change visuals"
-    ("r" (boich/focus-off) "regular")
-    ("f" (boich/focus-on) "focus")
+    ("r" (boich/set-default-theme) "regular")
+    ("f" (boich/set-focus-theme) "focus")
+    ("j" (boich/set-jblow-light-theme) "JBlow light")
+    ("J" (boich/set-jblow-dark-theme) "JBlow dark")
     ("q" nil "finished" :exit t))
 
   (boich/leader-keys
