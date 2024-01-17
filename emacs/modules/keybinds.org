@@ -82,6 +82,8 @@ than multiple cursors. Don't forget that!
    "ff" '(projectile--find-file :which-key "find file")
    "fd" '(projectile-find-dir :which-key "find dir")
    "fh" '(dired-jump :which-key "dired here")
+   "fq" '(kill-current-buffer :which-key "kill buffer")
+   "fQ" '(kill-buffer-and-window :which-key "kill buffer & window")
    "fp" '(counsel-projectile :which-key "search in project")
    "fP" '(projectile-switch-project :which-key "switch project")
    "fm" '(projectile-command-map :which-key "projectile command map"))
@@ -235,11 +237,14 @@ than multiple cursors. Don't forget that!
     "cP" '(treemacs-add-and-display-current-project :which-key "project explorer (additive)")
     ;; "cc" '('completion-at-point :which-key "completion at point")
     "cc" '(counsel-company :which-key "completion")
-    "ca" '(eglot-code-actions :which-key "actions") ;; TODO what is the lsp-equivalent of this?
+    "ca" '(lsp-execute-code-action :which-key "actions")
     "cr" '(lsp-rename :which-key "rename symbol")
     "cd" '(lsp-ui-doc-show :which-key "show docs")
     "cg" '(diff-hl-mode :which-key "toggle git diff indicator")
     "cG" '(diff-hl-margin-mode :which-key "toggle git margin indicator")
+    "cm" '(lsp-format-region :which-key "format region/line")
+    "cM" '(lsp-format-buffer :which-key "format buffer")
+    "c/" '(comment-dwim :which-key "toggle comments")
     "cf" '(:ignore t :which-key "find")
     "cfD" '(xref-find-definitions :which-key "definitions (xref: M-.)")
     "cfR" '(xref-find-references :which-key "references (xref: M-?)")
@@ -255,6 +260,7 @@ than multiple cursors. Don't forget that!
   (boich/leader-keys
     "s" '(:ignore t :which-key "search")
     "sw" '(boich/work-search :which-key "work (bing internal)")
+    "st" '(boich/tsg-search :which-key "tsg search")
     )
 #+end_src
 

@@ -19,7 +19,7 @@ If the right side of doom modeline is cut off: [[https://github.com/doomemacs/do
   (scroll-bar-mode -1)    ; Disable the visible scrollbar
   (tool-bar-mode -1)      ; Disable the toolbar
   (tooltip-mode -1)       ; Disable tooltips
-  (set-fringe-mode 20)    ; Gives some breathing room
+  ;;(set-fringe-mode 20)    ; Gives some breathing room
   (menu-bar-mode -1)      ; Disable the menu bar
 
   (setq scroll-margin 10) ; Maintain lines below and above cursor

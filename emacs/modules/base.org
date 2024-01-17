@@ -140,3 +140,9 @@ So... Just get used to the idea. Do something like "1d to delete into the 1st
 register. Then delete all over the place and when you replace something, do it
 with "1p - easy enough.
 
+
+* Spaces instead of Tabs
+
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src

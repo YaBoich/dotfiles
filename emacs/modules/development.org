@@ -153,6 +153,18 @@ Or for programming modes only:
     (add-hook 'prog-mode-hook 'yas-minor-mode)
 ```
 
+* Toggling Comments
+
+** Multiple Lines [M-;]
+
+You can toggle comments for multple lines with the `comment-dwim' command. It
+stands for "comment do-what-I-mean" and is bound to =M-;= by default.
+
+** Single Line [C-x C-;]
+
+You can toggle comments for single lines with the `comment-line' command. It is
+bound to =C-x C-;= by default
+
 * VTerm
 
 #+begin_src emacs-lisp
